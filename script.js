@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     ${item.objective ? `<p><strong>Objetivo:</strong> ${item.objective}</p>` : ''}
                                     ${item.difficulty ? `<p><strong>Dificultad:</strong> ${item.difficulty}</p>` : ''}
                                     ${item.date ? `<p><strong>Fecha:</strong> ${item.date}</p>` : ''}
-                                    ${item.author ? `<p><strong>Autor:</strong> ${item.author}</p>` : ''}
                                     ${item.category ? `<p><strong>Categoría:</strong> ${item.category}</p>` : ''}
                                 </div>
                             </div>
