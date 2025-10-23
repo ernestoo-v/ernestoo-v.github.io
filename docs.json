@@ -1,0 +1,41 @@
+[
+  {
+    "title": "Ataque WiFi",
+    "description": "Captura de handshakes y descifrado de contraseñas. Incluye scripts para descargar y configurar los drivers de la antena RTL8188EU.",
+    "icon": "fas fa-wifi",
+    "link": "wifi-attack.html",
+    "type": "web",
+    "tools": ["Bettercap", "Aircrack-ng", "RTL8188EU Drivers"],
+    "objective": "Auditar la seguridad de redes inalámbricas",
+    "difficulty": "Intermedio",
+    "date": "2025-03-22",
+    "author": "Ernesto Villar",
+    "category": "Seguridad WiFi"
+  },
+  {
+    "title": "Ataque Man-in-the-Middle",
+    "description": "Intercepción de tráfico de red para capturar datos sensibles como cookies o credenciales. Incluye configuración de ARP spoofing.",
+    "icon": "fas fa-user-secret",
+    "link": "arp-spoofing.html",
+    "type": "web",
+    "tools": ["Ettercap", "Wireshark"],
+    "objective": "Analizar la seguridad de comunicaciones",
+    "difficulty": "Intermedio",
+    "date": "2025-03-20",
+    "author": "Ernesto Villar",
+    "category": "Seguridad de Red"
+  },
+  {
+    "title": "Ataque Rogue DHCP",
+    "description": "Configuración de un servidor DHCP falso para distribuir direcciones maliciosas en una red local. Redirige el tráfico DNS a sitios controlados por el atacante usando dnschef y Yersinia.",
+    "icon": "fas fa-server",
+    "link": "rogue-dhcp.html",
+    "type": "web",
+    "tools": ["Yersinia", "Metasploit", "dnschef"],
+    "objective": "Facilitar phishing o interceptación de tráfico mediante control del DNS",
+    "difficulty": "Avanzado",
+    "date": "2025-04-01",
+    "author": "Ernesto Villar",
+    "category": "Seguridad de Red"
+  }
+]
