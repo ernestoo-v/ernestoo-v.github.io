@@ -1,5 +1,19 @@
 const docsData = [
   {
+    title: "Elevación de servicios DLL Hijacking",
+    description:
+      "Explotación del mecanismo de carga de DLLs en Windows para ejecutar código malicioso. Utiliza Process Monitor para detectar oportunidades y Metasploit para generar payloads.",
+    icon: "fas fa-file-code",
+    link: "dll-hijacking.html",
+    type: "web",
+    tools: ["Metasploit", "Process Monitor", "msfvenom"],
+    objective: "Ejecutar código malicioso mediante DLL Hijacking en Microsoft Teams",
+    difficulty: "Avanzado",
+    date: "2025-04-05",
+    author: "Ernesto Villar",
+    category: "Escalada de Privilegios",
+  },
+  {
     title: "Ataque WiFi",
     description:
       "Captura de handshakes y descifrado de contraseñas. Incluye scripts para descargar y configurar los drivers de la antena RTL8188EU.",
@@ -12,20 +26,6 @@ const docsData = [
     date: "2025-03-22",
     author: "Ernesto Villar",
     category: "Seguridad WiFi",
-  },
-  {
-    title: "Ataque Man-in-the-Middle",
-    description:
-      "Intercepción de tráfico de red para capturar datos sensibles como cookies o credenciales. Incluye configuración de ARP spoofing.",
-    icon: "fas fa-user-secret",
-    link: "arp-spoofing.html",
-    type: "web",
-    tools: ["Ettercap", "Wireshark"],
-    objective: "Analizar la seguridad de comunicaciones",
-    difficulty: "Intermedio",
-    date: "2025-03-20",
-    author: "Ernesto Villar",
-    category: "Seguridad de Red",
   },
   {
     title: "Ataque Rogue DHCP",
@@ -42,18 +42,18 @@ const docsData = [
     category: "Seguridad de Red",
   },
   {
-    title: "Elevación de servicios DLL Hijacking",
+    title: "Ataque Man-in-the-Middle",
     description:
-      "Explotación del mecanismo de carga de DLLs en Windows para ejecutar código malicioso. Utiliza Process Monitor para detectar oportunidades y Metasploit para generar payloads.",
-    icon: "fas fa-file-code",
-    link: "dll-hijacking.html",
+      "Intercepción de tráfico de red para capturar datos sensibles como cookies o credenciales. Incluye configuración de ARP spoofing.",
+    icon: "fas fa-user-secret",
+    link: "arp-spoofing.html",
     type: "web",
-    tools: ["Metasploit", "Process Monitor", "msfvenom"],
-    objective: "Ejecutar código malicioso mediante DLL Hijacking en Microsoft Teams",
-    difficulty: "Avanzado",
-    date: "2025-04-05",
+    tools: ["Ettercap", "Wireshark"],
+    objective: "Analizar la seguridad de comunicaciones",
+    difficulty: "Intermedio",
+    date: "2025-03-20",
     author: "Ernesto Villar",
-    category: "Escalada de Privilegios",
+    category: "Seguridad de Red",
   },
   {
     title: "Pass the Ticket",
