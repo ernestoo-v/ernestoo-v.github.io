@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ataque Rogue DHCP - Ernesto Villar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="article-style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-left">
+      <!-- Added link to home page on logo -->
+      <a href="index.html" style="text-decoration: none; color: inherit;"><span class="nav-logo">Ernesto Villar</span></a>
+    </div>
+    <div class="nav-right">
+      <ul>
+        <li><a href="#" class="active">Documentación</a></li>
+        <li><a href="ernestoo-v.github.io-main/pdf/rogue_dhcp.pdf" download class="download-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Descargar PDF
+        </a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <article class="article-container">
+    <header class="article-header">
+      <h1 class="article-title">Ataque Rogue DHCP</h1>
+      <p class="article-subtitle">Yersinia + Metasploit + dnschef</p>
+      <div class="article-meta">
+        <span class="author">Por Ernesto Villar</span>
+      </div>
+    </header>
+
+    <nav class="table-of-contents">
+      <h2>Contenido</h2>
+      <ul>
+        <li><a href="#introduccion">Introducción del Ataque</a></li>
+        <li><a href="#funcionamiento">Funcionamiento del Ataque</a></li>
+        <li><a href="#herramientas">Herramientas Usadas</a></li>
+        <li><a href="#pasos">Pasos del Ataque</a>
+          <ul>
+            <li><a href="#metasploit">Metasploit</a></li>
+            <li><a href="#yersinia">Yersinia</a></li>
+            <li><a href="#wireshark">Wireshark</a></li>
+            <li><a href="#dnschef">Dnschef</a></li>
+          </ul>
+        </li>
+        <li><a href="#por-que-funciona">¿Por qué funciona el ataque?</a></li>
+      </ul>
+    </nav>
+
+    <section id="introduccion" class="article-section">
+      <h2>Introducción del Ataque</h2>
+      <p>El ataque <strong>Rogue DHCP</strong> utiliza un servidor DHCP falso para distribuir configuraciones de red maliciosas a las víctimas dentro de una red local. En combinación con herramientas como <code>dnschef</code> y <code>Yersinia</code>, este ataque permite redirigir el tráfico DNS de las víctimas hacia páginas web controladas por el atacante o sitios de su elección, facilitando ataques de phishing, robo de credenciales o interceptación de tráfico.</p>
+    </section>
+
+    <section id="funcionamiento" class="article-section">
+      <h2>Funcionamiento del Ataque</h2>
+      
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Preparación del Entorno</h3>
+          <p>Configura un servidor DHCP falso en la máquina atacante utilizando herramientas como Metasploit. Este servidor distribuirá configuraciones maliciosas (como puertas de enlace predeterminadas o servidores DNS) a los dispositivos de la red.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Utiliza Yersinia</h3>
+          <p>Interrumpir las comunicaciones normales entre clientes y el servidor DHCP legítimo. Esto se logra mediante el envío de paquetes de desautenticación (Deauthentication) a los clientes conectados al punto de acceso, forzándolos a reconectarse. Durante el proceso de reconexión, el servidor DHCP falso responderá antes que el servidor legítimo, ofreciendo configuraciones maliciosas.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Ejecución del Ataque</h3>
+          <p>Cuando una víctima solicita una configuración de red, el servidor DHCP falso responde y entrega los parámetros maliciosos. Entre estos parámetros, el servidor DHCP proporciona una dirección DNS controlada por el atacante.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Redirección de Tráfico</h3>
+          <p>En el servidor atacante, se configura <code>dnschef</code> para actuar como un servidor DNS personalizado. dnschef intercepta las consultas DNS de la víctima y redirige las solicitudes a páginas web específicas o réplicas de sitios legítimos alojadas por el atacante.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Manipulación del Usuario</h3>
+          <p>Al acceder a las páginas web, la víctima es redirigida al contenido diseñado por el atacante, permitiendo acciones como robo de credenciales o la ejecución de scripts maliciosos.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="herramientas" class="article-section">
+      <h2>Herramientas Usadas</h2>
+      
+      <div class="tools-grid">
+        <div class="tool-card">
+          <h3>Metasploit</h3>
+          <p>Un marco de trabajo para pruebas de penetración que incluye módulos para configurar un servidor DHCP malicioso.</p>
+        </div>
+
+        <div class="tool-card">
+          <h3>Yersinia</h3>
+          <p>Una herramienta avanzada para manipular y explotar protocolos de red como DHCP, STP, CDP, entre otros. Facilita la ejecución de ataques al protocolo DHCP.</p>
+        </div>
+
+        <div class="tool-card">
+          <h3>dnschef</h3>
+          <p>Una herramienta utilizada para realizar redirecciones DNS, permitiendo al atacante controlar las solicitudes DNS de las víctimas.</p>
+        </div>
+
+        <div class="tool-card">
+          <h3>Wireshark</h3>
+          <p>Un analizador de tráfico de red que permite verificar que las respuestas del servidor DHCP falso y las redirecciones DNS están funcionando correctamente.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pasos" class="article-section">
+      <h2>Pasos del Ataque</h2>
+
+      <div id="metasploit" class="subsection">
+        <h3>Metasploit</h3>
+        <p class="info-box">Teniendo en cuenta que la IP de la máquina atacante es <code>192.168.1.114</code></p>
+        <p>Vamos a configurar Metasploit para crear un servidor DHCP falso, y así engañar a los nuevos usuarios que se conecten a la red.</p>
+
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-title">1. Habilitar la interfaz de red virtual</span>
+          </div>
+          <p class="command-description">Utiliza la misma tarjeta de red física (eth0) pero con la IP específica 192.168.1.115. Esto permite que tu máquina atacante utilice esa dirección IP para servir como un servidor DHCP falso.</p>
+          <pre><code>sudo ifconfig eth0:1 192.168.1.115 netmask 255.255.255.0</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-title">2. Habilitar el reenvío de paquetes IP</span>
+          </div>
+          <p class="command-description">Permite que la máquina pueda reenviar paquetes entre interfaces, actuando como un router.</p>
+          <pre><code>echo 1 > /proc/sys/net/ipv4/ip_forward</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-title">3. Configurar la puerta de enlace predeterminada</span>
+          </div>
+          <p class="command-description">Establece la dirección 192.168.137.1 como puerta de enlace predeterminada para la interfaz virtual eth0:1.</p>
+          <pre><code>route add default gw 192.168.1.137 eth0:1</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-title">4. Iniciar Metasploit y cargar el módulo DHCP</span>
+          </div>
+          <p class="command-description">Esto abre Metasploit y carga el módulo auxiliar para configurar un servidor DHCP falso.</p>
+          <pre><code>msfconsole -q -x 'use auxiliary/server/dhcp'</code></pre>
+        </div>
+
+        <div class="config-section">
+          <h4>Configuración dentro de Metasploit</h4>
+          <p>Configura las siguientes opciones para usar la IP de tu máquina atacante (192.168.1.114):</p>
+
+          <div class="config-item">
+            <div class="config-command">
+              <pre><code>set srvhost 192.168.1.114</code></pre>
+            </div>
+            <div class="config-explanation">
+              <p><strong>Configurar la dirección IP de la máquina atacante</strong></p>
+              <ul>
+                <li>El módulo de Metasploit escuchará en la IP 192.168.1.114 para atender las solicitudes DHCP.</li>
+                <li>La máquina atacante ejecuta el servidor DHCP falso y debe estar configurada para recibir las solicitudes desde los dispositivos que buscan una dirección IP en la red.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-command">
+              <pre><code>set netmask 255.255.255.0</code></pre>
+            </div>
+            <div class="config-explanation">
+              <p><strong>Configurar la máscara de subred</strong></p>
+              <ul>
+                <li>La máscara 255.255.255.0 divide la red en un rango que incluye las IPs desde 192.168.1.1 hasta 192.168.1.254.</li>
+                <li>Define cómo los dispositivos en la red deben comunicarse.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-command">
+              <pre><code>set router 192.168.1.1</code></pre>
+            </div>
+            <div class="config-explanation">
+              <p><strong>Configurar la puerta de enlace predeterminada</strong></p>
+              <ul>
+                <li>La puerta de enlace es necesaria para que los dispositivos puedan comunicarse con redes externas.</li>
+                <li>Esta configuración permite que las víctimas usen el router para el tráfico externo mientras el atacante intercepta el tráfico DNS.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-command">
+              <pre><code>set dnsserver 192.168.1.114</code></pre>
+            </div>
+            <div class="config-explanation">
+              <p><strong>Configurar la máquina atacante como servidor DNS</strong></p>
+              <ul>
+                <li>Esto es clave para interceptar y redirigir las solicitudes DNS de las víctimas.</li>
+                <li>Se puede usar una herramienta como dnschef para responder con direcciones IP falsas.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-command">
+              <pre><code>set DHCPIPSTART 192.168.1.200</code></pre>
+            </div>
+            <div class="config-explanation">
+              <p><strong>Definir la primera dirección IP del rango</strong></p>
+              <ul>
+                <li>Las direcciones IP comenzarán en 192.168.1.200.</li>
+                <li>Esto evita conflictos con otras direcciones IP que ya puedan estar en uso en la red.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-command">
+              <pre><code>set DHCPIPEND 192.168.1.250</code></pre>
+            </div>
+            <div class="config-explanation">
+              <p><strong>Definir la última dirección IP del rango</strong></p>
+              <ul>
+                <li>Establece un rango de direcciones IP (192.168.1.200 a 192.168.1.250).</li>
+                <li>El rango debe ser suficientemente amplio para cubrir el número esperado de dispositivos.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-command">
+              <pre><code>set DOMAINNAME atck.local</code></pre>
+            </div>
+            <div class="config-explanation">
+              <p><strong>Configurar un nombre de dominio ficticio</strong></p>
+              <ul>
+                <li>Este dominio (atck.local) es una etiqueta arbitraria que puede usarse para identificar las máquinas.</li>
+                <li>Puede ser útil para que las víctimas vean algo menos sospechoso en sus configuraciones de red.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-title">8. Comprobar que la configuración es correcta</span>
+          </div>
+          <pre><code>show options</code></pre>
+        </div>
+
+        <!-- Updated image path to local file -->
+        <div class="image-container">
+          <img src="images/dhcp-config.png" alt="Configuración DHCP en Metasploit" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-title">9. Iniciar el servidor DHCP</span>
+          </div>
+          <pre><code>run</code></pre>
+        </div>
+      </div>
+
+      <div id="yersinia" class="subsection">
+        <h3>Yersinia</h3>
+
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-title">1. Iniciar Yersinia en modo interactivo</span>
+          </div>
+          <pre><code>sudo yersinia -G</code></pre>
+        </div>
+
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-badge">2</span>
+            <p>Seleccionar el protocolo DHCP</p>
+          </div>
+          <div class="step-item">
+            <span class="step-badge">3</span>
+            <p>Lanzar el ataque DISCOVER DHCP</p>
+          </div>
+        </div>
+
+        <!-- Updated image path to local file -->
+        <div class="image-container">
+          <img src="images/yersinia-discover.png" alt="Selección de ataque DISCOVER en Yersinia" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+
+        <div class="info-box warning">
+          <h4>Comprobación del funcionamiento</h4>
+          <p>Para verificar el ataque, observa en Wireshark:</p>
+          <ul>
+            <li>Yersinia envía múltiples solicitudes DHCP Discover falsificadas usando direcciones MAC generadas aleatoriamente.</li>
+            <li>Esto inunda el servidor DHCP legítimo, obligándolo a responder con DHCP Offer para cada solicitud.</li>
+            <li>Como los clientes legítimos también dependen del servidor, este podría quedarse sin direcciones IP disponibles, impidiendo que otros dispositivos se conecten a la red.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="wireshark" class="subsection">
+        <h3>Wireshark (opcional)</h3>
+        <p>Análisis del tráfico DHCP capturado:</p>
+
+        <!-- Updated image path to local file -->
+        <div class="image-container">
+          <img src="images/wireshark-discover-flood.png" alt="Múltiples paquetes DHCP Discover en Wireshark" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+
+        <div class="wireshark-analysis">
+          <div class="analysis-step">
+            <h4>1. Inicio de la búsqueda (DHCP Discover)</h4>
+            <p>El cliente, con dirección inicial <code>0.0.0.0</code>, envía un paquete DHCP Discover a la dirección de broadcast (<code>255.255.255.255</code>). El cliente está indicando que busca un servidor DHCP que le proporcione una configuración de red.</p>
+          </div>
+
+          <div class="analysis-step">
+            <h4>2. Respuestas de los servidores DHCP (DHCP Offer)</h4>
+            <ul>
+              <li>El primer DHCP Offer llega desde tu servidor DHCP falso con IP <code>192.168.1.115</code>. Este paquete ofrece al cliente una dirección IP y configuración de red.</li>
+              <li>Poco después, el servidor DHCP legítimo del router (IP <code>192.168.1.1</code>) responde también con su DHCP Offer.</li>
+              <li>Ambos servidores compiten ofreciendo direcciones IP al cliente, pero el cliente solo aceptará la primera respuesta completa que reciba.</li>
+            </ul>
+          </div>
+
+          <div class="analysis-step">
+            <h4>3. Aceptación de la oferta (DHCP Request)</h4>
+            <p>El cliente envía un paquete DHCP Request indicando que acepta la oferta del servidor <code>192.168.1.115</code>. Este paso confirma que el cliente ha elegido la configuración de red proporcionada por tu servidor DHCP falso.</p>
+          </div>
+
+          <div class="analysis-step">
+            <h4>4. Confirmación de la configuración (DHCP ACK)</h4>
+            <p>Tu servidor DHCP falso responde con un paquete DHCP ACK, confirmando la asignación de la configuración al cliente. Este paquete incluye la dirección IP asignada y otros parámetros como la puerta de enlace, máscara de subred y servidor DNS.</p>
+          </div>
+
+          <div class="analysis-step">
+            <h4>5. Reacción del servidor legítimo</h4>
+            <p>A pesar de que el servidor legítimo envía otro DHCP Offer, el cliente ya está configurado con los parámetros de tu servidor DHCP falso, por lo que ignora cualquier respuesta posterior.</p>
+          </div>
+
+          <!-- Updated image path to local file -->
+          <div class="image-container">
+            <img src="images/wireshark-dhcp-traffic.png" alt="Tráfico DHCP capturado en Wireshark" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          </div>
+        </div>
+      </div>
+
+      <div id="dnschef" class="subsection">
+        <h3>Dnschef</h3>
+        <p>Con el comando <code>dnschef</code> es posible configurar un servidor DNS falso que interceptará las consultas DNS del cliente y redirigirá cualquier solicitud para dominios que coincidan con <code>google.es</code> a la dirección IP <code>192.168.1.114</code> (la dirección IP de la máquina atacante), que será un simple servidor Apache.</p>
+
+        <div class="command-block">
+          <pre><code>sudo ./dnschef.py -i 192.168.1.114 --fakeip 192.168.1.114 --fakedomains google.es</code></pre>
+        </div>
+
+        <div class="process-flow">
+          <div class="flow-step">
+            <div class="flow-icon">1</div>
+            <div class="flow-content">
+              <h4>Interceptación de consultas DNS</h4>
+              <p>Cuando el cliente conectado al servidor DHCP realiza una consulta DNS para resolver <code>google.es</code>, en lugar de dirigirse a un servidor DNS legítimo, la consulta se envía a dnschef, que actúa como un servidor DNS falso.</p>
+            </div>
+          </div>
+
+          <div class="flow-step">
+            <div class="flow-icon">2</div>
+            <div class="flow-content">
+              <h4>Respuesta con IP falsa</h4>
+              <p>dnschef está configurado para responder a cualquier consulta relacionada con <code>google.es</code> con la dirección IP <code>192.168.1.114</code>, independientemente de la IP real del dominio.</p>
+            </div>
+          </div>
+
+          <div class="flow-step">
+            <div class="flow-icon">3</div>
+            <div class="flow-content">
+              <h4>Servidor Apache</h4>
+              <p>En la máquina atacante, el servidor Apache puede estar configurado para servir una página web personalizada o incluso para capturar información del cliente.</p>
+            </div>
+          </div>
+
+          <div class="flow-step">
+            <div class="flow-icon">4</div>
+            <div class="flow-content">
+              <h4>Redirección a tu servidor</h4>
+              <p>Dado que <code>192.168.1.114</code> es la IP de la máquina atacante, cualquier intento del cliente de acceder a <code>google.es</code> será redirigido al servidor Apache en esa IP.</p>
+            </div>
+          </div>
+
+          <!-- Updated image path to local file -->
+          <div class="image-container">
+            <img src="images/google-redirect.png" alt="Página falsa de Google mostrando redirección exitosa" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="por-que-funciona" class="article-section">
+      <h2>¿Por qué funciona el ataque?</h2>
+      <p>Un ataque de DHCP Rogue (servidor DHCP falso) funciona explotando la naturaleza del protocolo DHCP, que asigna dinámicamente direcciones IP y otros parámetros de red a los dispositivos que se conectan. Al introducir un servidor DHCP malicioso en la red, el atacante puede proporcionar configuraciones de red controladas, redirigiendo el tráfico de las víctimas a través de su máquina para realizar ataques de intermediario (Man-in-the-Middle).</p>
+
+      <div class="explanation-box">
+        <p>En este escenario, el servidor DHCP falso está configurado para responder más rápidamente que el servidor legítimo, aumentando la probabilidad de que el cliente acepte su oferta. Una vez que el cliente utiliza la configuración proporcionada por el atacante, su tráfico puede ser redirigido o interceptado.</p>
+      </div>
+
+      <div class="attack-flow">
+        <div class="flow-card">
+          <div class="flow-number">1</div>
+          <h4>Solicitud de configuración por parte del cliente</h4>
+          <p>Cuando un dispositivo se conecta a la red, envía un mensaje DHCP Discover en busca de servidores DHCP disponibles.</p>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-card">
+          <div class="flow-number">2</div>
+          <h4>Respuesta de servidores DHCP</h4>
+          <p>Tanto el servidor DHCP legítimo como el servidor DHCP falso (controlado por el atacante) pueden responder con un mensaje DHCP Offer, ofreciendo parámetros de red al cliente.</p>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-card">
+          <div class="flow-number">3</div>
+          <h4>Selección de la oferta por el cliente</h4>
+          <p>El cliente acepta la primera oferta que recibe enviando un mensaje DHCP Request al servidor correspondiente.</p>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-card">
+          <div class="flow-number">4</div>
+          <h4>Confirmación del servidor</h4>
+          <p>El servidor seleccionado responde con un DHCP ACK, confirmando la asignación de la configuración de red.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="article-footer">
+      <p>Documento educativo sobre seguridad de redes - Ernesto Villar</p>
+    </footer>
+  </article>
+</body>
+</html>

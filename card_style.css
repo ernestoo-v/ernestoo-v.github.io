@@ -1,0 +1,196 @@
+/* Enhanced card container with better grid layout */
+/* CONTENEDOR DE CARDS */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  height: fit-content;
+}
+
+/* CONTENEDOR INDIVIDUAL DE CADA TARJETA */
+.card-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* ENLACE QUE CUBRE LA TARJETA */
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
+}
+
+/* Refined card design with better shadows and borders */
+/* ESTILOS DE LAS CARDS */
+.card {
+  background: rgba(30, 30, 46, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  min-height: 420px;
+  width: 100%;
+  max-width: 380px;
+  overflow: visible;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* SECCIÓN QUE GIRA */
+.card-flip {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  flex-grow: 1;
+  perspective: 1000px;
+  padding: 0;
+}
+
+.card-front,
+.card-back {
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+  backface-visibility: hidden;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  background-color: transparent;
+  color: #d4d4d8;
+}
+
+.card-front {
+  position: relative;
+  z-index: 2;
+}
+
+.card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(180deg);
+  z-index: 1;
+  padding: 0;
+}
+
+.card:hover .card-flip .card-front {
+  transform: rotateY(180deg);
+}
+
+.card:hover .card-flip .card-back {
+  transform: rotateY(0deg);
+}
+
+/* Removed debug background color */
+/* PIE (FIJO) */
+.card-footer {
+  padding: 0;
+  background-color: transparent;
+}
+
+/* Improved icon and text styling */
+/* ESTILOS DE TEXTO */
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #3b82f6;
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.card-text {
+  font-size: 0.95rem;
+  color: #a1a1aa;
+  margin-bottom: 0.875rem;
+  line-height: 1.6;
+}
+
+.card-text strong {
+  color: #e4e4e7;
+  font-weight: 600;
+}
+
+/* Enhanced button with better hover states */
+/* BOTÓN PERSONALIZADO */
+.custom-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin-top: 1.5rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.card-link:hover .custom-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* UTILIDADES */
+.text-center {
+  text-align: center;
+}
+
+.mb-3 {
+  margin-bottom: 1.5rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-3 {
+  margin-top: 1.5rem;
+}
+
+/* Improved responsive breakpoints */
+/* MEDIA QUERIES */
+@media (max-width: 1024px) {
+  .cards-container {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .cards-container {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}

